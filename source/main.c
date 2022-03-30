@@ -346,7 +346,7 @@ struct player p;
 void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
 
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
-    i = 0;
+    int w = 0;
     int check;
     while(1){
         /*	Back ground	*/
@@ -354,40 +354,20 @@ void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
         {
             for (int j = 0; j < 20; j++) 
             {
-                check = (y*width)+(j*64)+1;
-                if ((check % 1217) != 0){
-                    for (int x = 0; x < 64; x++){
-                        pixel->color = ExMapPtr[y*width+(j*64)+x+(i*64)]; 
-                        pixel->x = x+(j*64);
-                        pixel->y = y;
-
-                        drawPixel(pixel);
-                    }
-                    // pixel->color = ExMapPtr[y*width+j+(i*64)]; 
-                    // pixel->x = x;
-                    // pixel->y = y;
-                }else{
-                    for (int x = 0; x < 64; x++){
-                        pixel->color = ExMapPtr[y*width+(j*64)+x-(19*64)+(i*64)]; 
-                        pixel->x = x+(j*64);
-                        pixel->y = y;
-
-                        drawPixel(pixel);
-                    }
-                    // pixel->color = ExMapPtr[y*width+j-(19*64)+(i*64)]; 
-                    // pixel->x = x;
-                    // pixel->y = y;
-                }
-                // pixel->color = ExMapPtr[y*width+x]; 
-                // pixel->x = x;
-                // pixel->y = y;
                 
+                for (int x = 0; x < 64; x++){
+                    pixel->color = ExMapPtr[y*width+(j*64)+x-(19*64)+(w*64)]; 
+                    pixel->x = x+(j*64);
+                    pixel->y = y;
+
+                    drawPixel(pixel);
+                }
             }
         }
-        if (i == 19){
-                i = 0;
+        if (w == 19){
+            w = 0;
         }else{
-            i++;
+            w++;
         }
         
         delayMicroseconds(150000);
