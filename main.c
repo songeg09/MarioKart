@@ -184,7 +184,8 @@ typedef struct {
 struct fbs framebufferstruct;
 void drawPixel(Pixel *pixel);
 
-
+int width = 1280;
+int height = 720;
 
 /* main function */
 int main(){
@@ -202,10 +203,6 @@ int main(){
 	Pixel *pixel;
 	pixel = malloc(sizeof(Pixel));
 
-    /*	background resolution	*/
-	int width, height;
-	width = 1280;
-	height = 720;
 
     int i;
 //////////////////////////////////////////////////////////////////////////////////////////////////
