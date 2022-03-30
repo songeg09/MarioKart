@@ -7,6 +7,8 @@
 #include <wiringPi.h>
 #include "initGPIO.h"
 
+#include <pthread.h>
+
 #include "OpeningBackground.h"
 #include "MainMenu.h"
 #include "Arrow.h"
@@ -174,6 +176,9 @@ void Read_SNES(unsigned int *gpioPtr) {
 //                                                                                              //
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+int i;
+int width = 1280;
+int height = 720;
 
 /* Definitions */
 typedef struct {
@@ -184,41 +189,17 @@ typedef struct {
 struct fbs framebufferstruct;
 void drawPixel(Pixel *pixel);
 
-int width = 1280;
-int height = 720;
 
-/* main function */
-int main(){
-
-	unsigned int *gpioPtr = getGPIOPtr();
-
-	Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);         // init pin 10 to input
-
-	/* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-    
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
-
-
-    int i;
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                              //
-//                                        Opening Background                                    //
-//                                                                                              //
-//////////////////////////////////////////////////////////////////////////////////////////////////
+void opening(unsigned int *gpioPtr, Pixel *pixel){
 
     short int *OpeningBackgroundPtr=(short int *) OpeningBackgroundImage.pixel_data;
     i = 0;
 
-    for (int y = 0; y < height; y++)
+     for (int y = 0; y < height; y++)
 	{
 		for (int x = 0; x < width; x++) 
 		{	
-			pixel->color = OpeningBackgroundPtr[i]; // white background
+			pixel->color = OpeningBackgroundPtr[i];
 			pixel->x = x;
 			pixel->y = y;
 	
@@ -231,19 +212,9 @@ int main(){
         Read_SNES(gpioPtr);
     }while (buttons[3]==1);
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                              //
-//                                        Opening Background                                    //
-//                                                                                              //
-//////////////////////////////////////////////////////////////////////////////////////////////////
+}
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                              //
-//                                        Main Menu                                             //
-//                                                                                              //
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
+void mainMenu(unsigned int *gpioPtr, Pixel *pixel){
     short int *MainMenuPtr=(short int *) MainMenuImage.pixel_data;
     i = 0;
 
@@ -338,9 +309,6 @@ int main(){
 		    }
         }
 
-
-
-
         Read_SNES(gpioPtr);
         if (cursor == 0){
             if (buttons[5] == 0){
@@ -353,18 +321,53 @@ int main(){
             if (buttons[4] == 0){
                 cursor = 0;
             }else if (buttons[8] == 0){
-                return 0;               // Terminate the program
+                exit(0);               // Terminate the program
             }
         }
 
         delayMicroseconds(75000);
-    }    
+    }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                              //
-//                                        Main Menu                                             //
-//                                                                                              //
-//////////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+
+
+struct player {
+    int current_x;
+    int current_y;
+
+    int previous_x;
+    int previous_y;
+
+    int lives;
+};
+
+
+
+
+/* main function */
+int main(){
+    unsigned int *gpioPtr = getGPIOPtr();
+
+	Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+    
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+    
+    opening(gpioPtr, pixel);
+
+    mainMenu(gpioPtr, pixel);
+
+
+
+
+
 	/* currenct location */
 	int current_x, current_y;
 	current_x = 192;
