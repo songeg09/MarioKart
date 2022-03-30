@@ -14,7 +14,6 @@
 #include "Arrow.h"
 
 #include "Mario.h"
-#include "ExBackground.h"
 #include "ExMap.h"
 
 
@@ -344,59 +343,42 @@ struct player {
 
 struct player p;
 
-void MapDrawing(unsigned int *gpioPtr, Pixel *pixel){
-    short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
-    i = 0;
+void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
 
-    /*	Back ground	*/
-	for (int y = 0; y < height; y++)
-	{
-		for (int x = 0; x < width; x++) 
-		{	
-			pixel->color = ExMapPtr[i]; // white background
-			pixel->x = x;
-			pixel->y = y;
-	
-			drawPixel(pixel);
-            i++;
-		}
-	}
+    short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+    int w = 0;
+    int check;
+    while(1){
+        /*	Back ground	*/
+        for (int y = 0; y < height; y++)
+        {
+            for (int j = 0; j < 20; j++) 
+            {
+                
+                for (int x = 0; x < 64; x++){
+                    pixel->color = ExMapPtr[y*width+(j*64)+x-(19*64)+(w*64)]; 
+                    pixel->x = x+(j*64);
+                    pixel->y = y;
+
+                    drawPixel(pixel);
+                }
+            }
+        }
+        if (w == 19){
+            w = 0;
+        }else{
+            w++;
+        }
+        
+        delayMicroseconds(150000);
+    }
 }
 
-
-/* main function */
-int main(){
-    unsigned int *gpioPtr = getGPIOPtr();
-
-	Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
-
-    /* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-    
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
-    
-    opening(gpioPtr, pixel);
-
-    mainMenu(gpioPtr, pixel);
-
-
-
-	/* currenct location */
-	p.current_x = 192;
-	p.current_y = (height / 2) + 64;
-
-    p.previous_x = p.current_x;
-    p.previous_y = p.current_y;
-    
-    MapDrawing(gpioPtr, pixel);
-
+void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+    short int *MarioPtr=(short int *) MarioImage.pixel_data;
 
-	while(1){
+    while(1){
         
 		Read_SNES(gpioPtr);
 
@@ -426,7 +408,6 @@ int main(){
 		
 		}
 
-        short int *MarioPtr=(short int *) MarioImage.pixel_data;
         i = 0;
 
 		/*	Mario location	*/
@@ -448,10 +429,54 @@ int main(){
 			}
 		
 		}
-         delayMicroseconds(75000);
+        delayMicroseconds(75000);
 
 
 	}
+}
+
+
+
+/* main function */
+int main(){
+
+    unsigned int *gpioPtr = getGPIOPtr();
+
+	Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+    
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+    
+    //opening(gpioPtr, pixel);
+
+    //mainMenu(gpioPtr, pixel);
+
+
+    // pthread_t tmap;
+    // pthread_attr_t attr;
+
+    // pthread_attr_init(&attr);
+    // pthread_create(&tmap,&attr,)
+
+
+	/* currenct location */
+	p.current_x = 192;
+	p.current_y = (height / 2) + 64;
+
+    p.previous_x = p.current_x;
+    p.previous_y = p.current_y;
+    
+    DrawingMap(gpioPtr, pixel);
+
+    DrawingMario(gpioPtr, pixel);
+
+
 	
 	/* free pixel's allocated memory */
 	free(pixel);
