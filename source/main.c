@@ -342,7 +342,26 @@ struct player {
     int lives;
 };
 
+struct player p;
 
+void MapDrawing(unsigned int *gpioPtr, Pixel *pixel){
+    short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+    i = 0;
+
+    /*	Back ground	*/
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++) 
+		{	
+			pixel->color = ExMapPtr[i]; // white background
+			pixel->x = x;
+			pixel->y = y;
+	
+			drawPixel(pixel);
+            i++;
+		}
+	}
+}
 
 
 /* main function */
@@ -366,33 +385,16 @@ int main(){
 
 
 
-
-
 	/* currenct location */
-	int current_x, current_y;
-	current_x = 192;
-	current_y = (height / 2) + 64;
+	p.current_x = 192;
+	p.current_y = (height / 2) + 64;
 
-    int previous_x, previous_y;
-    previous_x = current_x;
-    previous_y = current_y;
+    p.previous_x = p.current_x;
+    p.previous_y = p.current_y;
     
-    short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
-    i = 0;
+    MapDrawing(gpioPtr, pixel);
 
-    /*	Back ground	*/
-	for (int y = 0; y < height; y++)
-	{
-		for (int x = 0; x < width; x++) 
-		{	
-			pixel->color = ExMapPtr[i]; // white background
-			pixel->x = x;
-			pixel->y = y;
-	
-			drawPixel(pixel);
-            i++;
-		}
-	}
+    short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
 
 	while(1){
         
@@ -402,16 +404,16 @@ int main(){
 
 		for (i = 0; i < 16; i++) {
             if (buttons[i] == 0) {      // if button is pressed
-                ApplyChange(i+1, &current_x, &current_y, &previous_x, &previous_y);
+                ApplyChange(i+1, &p.current_x, &p.current_y, &p.previous_x, &p.previous_y);
                 break;
 			}	
 		}
        
 
 		/*	Fixing Background	*/
-		for (int y = previous_y; y < previous_y + 64; y++)
+		for (int y = p.previous_y; y < p.previous_y + 64; y++)
 		{
-			for (int x = previous_x; x < previous_x + 64; x++) 
+			for (int x = p.previous_x; x < p.previous_x + 64; x++) 
 			{
                 
                 pixel->color = ExMapPtr[y*width+x]; 
@@ -428,9 +430,9 @@ int main(){
         i = 0;
 
 		/*	Mario location	*/
-		for (int y = current_y; y < current_y + 64; y++)
+		for (int y = p.current_y; y < p.current_y + 64; y++)
 		{
-			for (int x = current_x; x < current_x + 64; x++) 
+			for (int x = p.current_x; x < p.current_x + 64; x++) 
 			{
                 
                 if (MarioPtr[i] == 0x000){
