@@ -347,7 +347,6 @@ void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
 
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
     int w = 0;
-    int check;
     while(1){
         /*	Back ground	*/
         for (int y = 0; y < height; y++)
@@ -369,14 +368,24 @@ void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
         }else{
             w++;
         }
+
         
-        delayMicroseconds(150000);
+        
+        delayMicroseconds(100000);
     }
 }
 
 void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
     short int *MarioPtr=(short int *) MarioImage.pixel_data;
+
+    /* currenct location */
+	p.current_x = 192;
+	p.current_y = (height / 2) + 64;
+
+    p.previous_x = p.current_x;
+    p.previous_y = p.current_y;
+    
 
     while(1){
         
@@ -435,6 +444,41 @@ void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
 	}
 }
 
+void *runMap(void *unused){
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+    
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+
+    DrawingMap(gpioPtr, pixel);    
+
+    pthread_exit(0);
+}
+
+void *runMario(void *unused){
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+    
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+
+    DrawingMario(gpioPtr, pixel);    
+
+    pthread_exit(0);
+}
 
 
 /* main function */
@@ -453,16 +497,20 @@ int main(){
 	Pixel *pixel;
 	pixel = malloc(sizeof(Pixel));
     
-    //opening(gpioPtr, pixel);
+    opening(gpioPtr, pixel);
 
-    //mainMenu(gpioPtr, pixel);
+    mainMenu(gpioPtr, pixel);
 
 
-    // pthread_t tmap;
-    // pthread_attr_t attr;
+    pthread_t tmap,tmario;
+    pthread_attr_t attr;
 
-    // pthread_attr_init(&attr);
-    // pthread_create(&tmap,&attr,)
+    pthread_attr_init(&attr);
+    pthread_create(&tmap,&attr, runMap, NULL);
+    pthread_create(&tmario,&attr, runMario, NULL);
+
+    pthread_join(tmap,NULL);
+    pthread_join(tmario,NULL);
 
 
 	/* currenct location */
@@ -472,9 +520,9 @@ int main(){
     p.previous_x = p.current_x;
     p.previous_y = p.current_y;
     
-    DrawingMap(gpioPtr, pixel);
+    // DrawingMap(gpioPtr, pixel);
 
-    DrawingMario(gpioPtr, pixel);
+    // DrawingMario(gpioPtr, pixel);
 
 
 	
