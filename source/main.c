@@ -13,6 +13,7 @@
 #include "MainMenu.h"
 #include "Arrow.h"
 
+#include "Heart.h"
 #include "Mario.h"
 #include "ExMap.h"
 
@@ -375,6 +376,33 @@ void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
     }
 }
 
+void DrawingHeart(unsigned int *gpioPtr, Pixel *pixel){
+
+    short int *HeartPtr=(short int *) HeartImage.pixel_data;
+    int w;
+    while(1){
+        
+        for (int j = 0; j < p.lives; j++){
+            w = 0;
+            for (int y = 0; y < 64; y++){
+			    for (int x = 0; x < 64; x++) {
+                
+                    pixel->color = HeartPtr[w];
+                    pixel->x = x+(j*64);
+                    pixel->y = y;
+            
+                    drawPixel(pixel);
+                    w++;
+			    }
+		
+		    }
+        }
+        //delayMicroseconds(100000);
+
+    }
+
+}
+
 void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
     short int *MarioPtr=(short int *) MarioImage.pixel_data;
@@ -480,6 +508,24 @@ void *runMario(void *unused){
     pthread_exit(0);
 }
 
+void *runHeart(void *unused){
+   unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+    
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+
+    DrawingHeart(gpioPtr, pixel);    
+
+    pthread_exit(0);
+}
+
 
 /* main function */
 int main(){
@@ -501,30 +547,18 @@ int main(){
 
     mainMenu(gpioPtr, pixel);
 
-
-    pthread_t tmap,tmario;
+    p.lives = 3;
+    pthread_t tmap,tmario,theart;
     pthread_attr_t attr;
 
     pthread_attr_init(&attr);
     pthread_create(&tmap,&attr, runMap, NULL);
     pthread_create(&tmario,&attr, runMario, NULL);
+    pthread_create(&theart,&attr, runHeart, NULL);
 
     pthread_join(tmap,NULL);
     pthread_join(tmario,NULL);
-
-
-	/* currenct location */
-	p.current_x = 192;
-	p.current_y = (height / 2) + 64;
-
-    p.previous_x = p.current_x;
-    p.previous_y = p.current_y;
-    
-    // DrawingMap(gpioPtr, pixel);
-
-    // DrawingMario(gpioPtr, pixel);
-
-
+    pthread_join(theart,NULL);
 	
 	/* free pixel's allocated memory */
 	free(pixel);
