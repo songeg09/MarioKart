@@ -13,11 +13,20 @@
 #include "MainMenu.h"
 #include "Arrow.h"
 
+#include "Coin.h"
 #include "Heart.h"
 #include "Mario.h"
 #include "ExMap.h"
 
-
+#include "ZERO.h"
+#include "ONE.h"
+#include "TWO.h"
+#include "FOUR.h"
+#include "FIVE.h"
+#include "SIX.h"
+#include "SEVEN.h"
+#include "EIGHT.h"
+#include "NINE.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                              //
@@ -93,7 +102,7 @@ void ApplyChange(int cycle, int *c_x, int *c_y, int *p_x, int *p_y) {
     case 4:
         break;                               // Program terminates
     case 5:                                    // UP
-        if (*c_y - 64 >= 0){
+        if (*c_y - 64 >= 320){
 		    *c_y = *c_y - 64;
             break;
         }else{
@@ -321,6 +330,17 @@ void mainMenu(unsigned int *gpioPtr, Pixel *pixel){
             if (buttons[4] == 0){
                 cursor = 0;
             }else if (buttons[8] == 0){
+                for (int y = 0; y < height; y++){
+			        for (int x = 0; x < width; x++) {
+                
+                        pixel->color = 0x000;
+				        pixel->x = x;
+				        pixel->y = y;
+		
+				        drawPixel(pixel);
+			        }
+		
+		        }
                 exit(0);               // Terminate the program
             }
         }
@@ -340,6 +360,12 @@ struct player {
     int previous_y;
 
     int lives;
+
+    int score;
+
+    int winflag;
+
+    int loseflag;
 };
 
 struct player p;
@@ -354,7 +380,6 @@ void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
         {
             for (int j = 0; j < 20; j++) 
             {
-                
                 for (int x = 0; x < 64; x++){
                     pixel->color = ExMapPtr[y*width+(j*64)+x-(19*64)+(w*64)]; 
                     pixel->x = x+(j*64);
@@ -372,7 +397,7 @@ void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
 
         
         
-        delayMicroseconds(100000);
+        delayMicroseconds(170000);
     }
 }
 
@@ -407,9 +432,11 @@ void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
     short int *MarioPtr=(short int *) MarioImage.pixel_data;
 
+    int w;
+
     /* currenct location */
 	p.current_x = 192;
-	p.current_y = (height / 2) + 64;
+	p.current_y = 448;
 
     p.previous_x = p.current_x;
     p.previous_y = p.current_y;
@@ -419,11 +446,11 @@ void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
         
 		Read_SNES(gpioPtr);
 
-        i = 0;
+        w = 0;
 
-		for (i = 0; i < 16; i++) {
-            if (buttons[i] == 0) {      // if button is pressed
-                ApplyChange(i+1, &p.current_x, &p.current_y, &p.previous_x, &p.previous_y);
+		for (w = 0; w < 16; w++) {
+            if (buttons[w] == 0) {      // if button is pressed
+                ApplyChange(w+1, &p.current_x, &p.current_y, &p.previous_x, &p.previous_y);
                 break;
 			}	
 		}
@@ -445,7 +472,7 @@ void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
 		
 		}
 
-        i = 0;
+        w = 0;
 
 		/*	Mario location	*/
 		for (int y = p.current_y; y < p.current_y + 64; y++)
@@ -453,11 +480,62 @@ void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
 			for (int x = p.current_x; x < p.current_x + 64; x++) 
 			{
                 
-                if (MarioPtr[i] == 0x000){
+                if (MarioPtr[w] == 0x000){
                     pixel->color = ExMapPtr[y*width+x];
                 }else{
-                    pixel->color = MarioPtr[i];
+                    pixel->color = MarioPtr[w];
                 } 
+				pixel->x = x;
+				pixel->y = y;
+		
+				drawPixel(pixel);
+                w++;
+			}
+		
+		}
+        delayMicroseconds(170000);
+
+
+	}
+}
+
+void DrawingCoin(unsigned int *gpioPtr, Pixel *pixel){
+
+    short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+    short int *CoinPtr=(short int *) CoinImage.pixel_data;
+
+    int coin_x = 19;
+
+    while(coin_x != -1){
+        /*	Fixing Background	*/
+		for (int y = 448; y < 448 + 64; y++)
+		{
+			for (int x = (coin_x+1)*64 ; x < (coin_x+1)*64 + 64; x++) 
+			{
+                
+                pixel->color = ExMapPtr[y*width+x]; 
+				pixel->x = x;
+				pixel->y = y;
+		
+				drawPixel(pixel);
+		
+			}
+		
+		}
+
+        i = 0;
+
+        if (p.current_x == coin_x*64 && p.current_y == 448){
+            p.score = p.score + 10;
+            break;
+        }
+
+		/* Coin Location */
+		for (int y = 448; y < 448 + 64; y++)
+		{
+			for (int x = coin_x*64; x < coin_x*64 + 64; x++) 
+			{
+                pixel->color = CoinPtr[i];
 				pixel->x = x;
 				pixel->y = y;
 		
@@ -466,11 +544,45 @@ void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
 			}
 		
 		}
-        delayMicroseconds(75000);
+        delayMicroseconds(170000);
 
+        coin_x = coin_x - 1;
+    }
 
-	}
 }
+
+// void DrawingScore(unsigned int *gpioPtr, Pixel *pixel){
+
+//     short int *ZEROPtr=(short int *) ZEROImage.pixel_data;
+//     short int *ONEPtr=(short int *) ONEImage.pixel_data;
+//     short int *TWOPtr=(short int *) TWOImage.pixel_data;
+//     short int *THREEPtr=(short int *) THREEImage.pixel_data;
+//     short int *FOURPtr=(short int *) FOURImage.pixel_data;
+//     short int *FIVEPtr=(short int *) FIVEImage.pixel_data;
+//     short int *SIXPtr=(short int *) SIXImage.pixel_data;
+//     short int *SEVENPtr=(short int *) SEVENImage.pixel_data;
+//     short int *EIGHTPtr=(short int *) EIGHTImage.pixel_data;
+//     short int *NINEPtr=(short int *) NINEImage.pixel_data;
+
+//     int one_digit = 0;
+//     int ten_digit = 0;
+//     int hundred_digit = 0;
+//     int thousand_digit = 0;
+
+//     while(1){
+
+//         one_digit = p.score % 10;
+        
+//         ten_digit = (p.score/10) % 10;
+
+//         hundred_digit = (p.score/100) % 10;
+
+//         thousand_digit = p.score/1000;
+        
+//     }
+
+
+// }
 
 void *runMap(void *unused){
     unsigned int *gpioPtr = getGPIOPtr();
@@ -509,7 +621,7 @@ void *runMario(void *unused){
 }
 
 void *runHeart(void *unused){
-   unsigned int *gpioPtr = getGPIOPtr();
+    unsigned int *gpioPtr = getGPIOPtr();
     Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
     Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
     Init_GPIO(DAT, 0, gpioPtr);
@@ -525,6 +637,43 @@ void *runHeart(void *unused){
 
     pthread_exit(0);
 }
+
+void *runCoin(void *unused){
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+    
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+
+    DrawingCoin(gpioPtr, pixel);    
+
+    pthread_exit(0);
+}
+
+// void *runScore(void *unused){
+//     unsigned int *gpioPtr = getGPIOPtr();
+//     Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+//     Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+//     Init_GPIO(DAT, 0, gpioPtr);
+
+//     /* initialize + get FBS */
+// 	framebufferstruct = initFbInfo();
+    
+// 	/* initialize a pixel */
+// 	Pixel *pixel;
+// 	pixel = malloc(sizeof(Pixel));
+
+//     DrawingScore(gpioPtr, pixel);    
+
+//     pthread_exit(0);
+// }
+
 
 
 /* main function */
@@ -547,18 +696,44 @@ int main(){
 
     mainMenu(gpioPtr, pixel);
 
-    p.lives = 3;
-    pthread_t tmap,tmario,theart;
+    // EXAMPLE MAP
+    short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+    for (int y = 0; y < height; y++){
+		for (int x = 0; x < width; x++) {
+                
+            pixel->color = ExMapPtr[y*width+x]; 
+			pixel->x = x;
+			pixel->y = y;
+		
+			drawPixel(pixel);
+		
+		}
+		
+	}
+
+    p.winflag = 0;
+    p.loseflag = 0;
+    p.lives = 4;
+    p.score = 0;
+    //pthread_t tmap,tmario,theart,tcoin;
     pthread_attr_t attr;
 
+    pthread_t tmario,theart,tcoin;
+
+
+
     pthread_attr_init(&attr);
-    pthread_create(&tmap,&attr, runMap, NULL);
+    //pthread_create(&tmap,&attr, runMap, NULL);
     pthread_create(&tmario,&attr, runMario, NULL);
     pthread_create(&theart,&attr, runHeart, NULL);
+    pthread_create(&tcoin,&attr, runCoin, NULL);
+    //pthread_create(&tscore,&attr, runScore, NULL);
 
-    pthread_join(tmap,NULL);
+    //pthread_join(tmap,NULL);
     pthread_join(tmario,NULL);
     pthread_join(theart,NULL);
+    pthread_join(tcoin,NULL);
+    //pthread_join(tscore,NULL);
 	
 	/* free pixel's allocated memory */
 	free(pixel);
