@@ -21,6 +21,7 @@
 #include "ZERO.h"
 #include "ONE.h"
 #include "TWO.h"
+#include "THREE.h"
 #include "FOUR.h"
 #include "FIVE.h"
 #include "SIX.h"
@@ -551,38 +552,258 @@ void DrawingCoin(unsigned int *gpioPtr, Pixel *pixel){
 
 }
 
-// void DrawingScore(unsigned int *gpioPtr, Pixel *pixel){
+void DrawingNumbers(unsigned int *gpioPtr, Pixel *pixel, int Number, int digit){
 
-//     short int *ZEROPtr=(short int *) ZEROImage.pixel_data;
-//     short int *ONEPtr=(short int *) ONEImage.pixel_data;
-//     short int *TWOPtr=(short int *) TWOImage.pixel_data;
-//     short int *THREEPtr=(short int *) THREEImage.pixel_data;
-//     short int *FOURPtr=(short int *) FOURImage.pixel_data;
-//     short int *FIVEPtr=(short int *) FIVEImage.pixel_data;
-//     short int *SIXPtr=(short int *) SIXImage.pixel_data;
-//     short int *SEVENPtr=(short int *) SEVENImage.pixel_data;
-//     short int *EIGHTPtr=(short int *) EIGHTImage.pixel_data;
-//     short int *NINEPtr=(short int *) NINEImage.pixel_data;
+    short int *ZEROPtr=(short int *) ZEROImage.pixel_data;
+    short int *ONEPtr=(short int *) ONEImage.pixel_data;
+    short int *TWOPtr=(short int *) TWOImage.pixel_data;
+    short int *THREEPtr=(short int *) THREEImage.pixel_data;
+    short int *FOURPtr=(short int *) FOURImage.pixel_data;
+    short int *FIVEPtr=(short int *) FIVEImage.pixel_data;
+    short int *SIXPtr=(short int *) SIXImage.pixel_data;
+    short int *SEVENPtr=(short int *) SEVENImage.pixel_data;
+    short int *EIGHTPtr=(short int *) EIGHTImage.pixel_data;
+    short int *NINEPtr=(short int *) NINEImage.pixel_data;
 
-//     int one_digit = 0;
-//     int ten_digit = 0;
-//     int hundred_digit = 0;
-//     int thousand_digit = 0;
-
-//     while(1){
-
-//         one_digit = p.score % 10;
+    int w = 0;
+    if (Number == 0){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = ZEROPtr[w];
+                if (digit == 1){
+                    pixel->x = x+1215;
+                }else if (digit == 10){
+                    pixel->x = x+1151;
+                }else if (digit == 100){
+                    pixel->x = x+1087;
+                }else if (digit == 1000){
+                    pixel->x = x+1023;
+                }
+                pixel->y = y;
+            
+                drawPixel(pixel);
+                w++;
+            }
+		
+	    }
+    }else if (Number == 1){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = ONEPtr[w];
+                if (digit == 1){
+                    pixel->x = x+1215;
+                }else if (digit == 10){
+                    pixel->x = x+1151;
+                }else if (digit == 100){
+                    pixel->x = x+1087;
+                }else if (digit == 1000){
+                    pixel->x = x+1023;
+                }
+                pixel->y = y;
         
-//         ten_digit = (p.score/10) % 10;
-
-//         hundred_digit = (p.score/100) % 10;
-
-//         thousand_digit = p.score/1000;
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 2){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = TWOPtr[w];
+                if (digit == 1){
+                    pixel->x = x+1215;
+                }else if (digit == 10){
+                    pixel->x = x+1151;
+                }else if (digit == 100){
+                    pixel->x = x+1087;
+                }else if (digit == 1000){
+                    pixel->x = x+1023;
+                }
+                pixel->y = y;
         
-//     }
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if ( Number == 3){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = THREEPtr[w];
+                if (digit == 1){
+                    pixel->x = x+1215;
+                }else if (digit == 10){
+                    pixel->x = x+1151;
+                }else if (digit == 100){
+                    pixel->x = x+1087;
+                }else if (digit == 1000){
+                    pixel->x = x+1023;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+        }
+    }else if (Number == 4){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = FOURPtr[w];
+                if (digit == 1){
+                    pixel->x = x+1215;
+                }else if (digit == 10){
+                    pixel->x = x+1151;
+                }else if (digit == 100){
+                    pixel->x = x+1087;
+                }else if (digit == 1000){
+                    pixel->x = x+1023;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 5){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = FIVEPtr[w];
+                if (digit == 1){
+                    pixel->x = x+1215;
+                }else if (digit == 10){
+                    pixel->x = x+1151;
+                }else if (digit == 100){
+                    pixel->x = x+1087;
+                }else if (digit == 1000){
+                    pixel->x = x+1023;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 6){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = SIXPtr[w];
+                if (digit == 1){
+                    pixel->x = x+1215;
+                }else if (digit == 10){
+                    pixel->x = x+1151;
+                }else if (digit == 100){
+                    pixel->x = x+1087;
+                }else if (digit == 1000){
+                    pixel->x = x+1023;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 7){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = SEVENPtr[w];
+                if (digit == 1){
+                    pixel->x = x+1215;
+                }else if (digit == 10){
+                    pixel->x = x+1151;
+                }else if (digit == 100){
+                    pixel->x = x+1087;
+                }else if (digit == 1000){
+                    pixel->x = x+1023;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 8){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = EIGHTPtr[w];
+                if (digit == 1){
+                    pixel->x = x+1215;
+                }else if (digit == 10){
+                    pixel->x = x+1151;
+                }else if (digit == 100){
+                    pixel->x = x+1087;
+                }else if (digit == 1000){
+                    pixel->x = x+1023;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 9){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = NINEPtr[w];
+                if (digit == 1){
+                    pixel->x = x+1215;
+                }else if (digit == 10){
+                    pixel->x = x+1151;
+                }else if (digit == 100){
+                    pixel->x = x+1087;
+                }else if (digit == 1000){
+                    pixel->x = x+1023;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }
+}
+
+void DrawingScore(unsigned int *gpioPtr, Pixel *pixel){
+
+    int one_digit = 0;
+    int ten_digit = 0;
+    int hundred_digit = 0;
+    int thousand_digit = 0;
+
+    while(1){
+
+        one_digit = p.score % 10;
+        DrawingNumbers(gpioPtr,pixel,one_digit,1);
+
+        ten_digit = (p.score/10) % 10;
+        DrawingNumbers(gpioPtr,pixel,ten_digit,10);
+
+        hundred_digit = (p.score/100) % 10;
+        DrawingNumbers(gpioPtr,pixel,hundred_digit,100);
+
+        thousand_digit = p.score/1000;
+        DrawingNumbers(gpioPtr,pixel,thousand_digit,1000);
+        
+        
+    }
 
 
-// }
+}
 
 void *runMap(void *unused){
     unsigned int *gpioPtr = getGPIOPtr();
@@ -656,23 +877,23 @@ void *runCoin(void *unused){
     pthread_exit(0);
 }
 
-// void *runScore(void *unused){
-//     unsigned int *gpioPtr = getGPIOPtr();
-//     Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-//     Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-//     Init_GPIO(DAT, 0, gpioPtr);
+void *runScore(void *unused){
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
 
-//     /* initialize + get FBS */
-// 	framebufferstruct = initFbInfo();
+    /* initialize + get FBS */
+	framebufferstruct = initFbInfo();
     
-// 	/* initialize a pixel */
-// 	Pixel *pixel;
-// 	pixel = malloc(sizeof(Pixel));
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
 
-//     DrawingScore(gpioPtr, pixel);    
+    DrawingScore(gpioPtr, pixel);    
 
-//     pthread_exit(0);
-// }
+    pthread_exit(0);
+}
 
 
 
@@ -718,7 +939,7 @@ int main(){
     //pthread_t tmap,tmario,theart,tcoin;
     pthread_attr_t attr;
 
-    pthread_t tmario,theart,tcoin;
+    pthread_t tmario,theart,tcoin,tscore;
 
 
 
@@ -727,13 +948,13 @@ int main(){
     pthread_create(&tmario,&attr, runMario, NULL);
     pthread_create(&theart,&attr, runHeart, NULL);
     pthread_create(&tcoin,&attr, runCoin, NULL);
-    //pthread_create(&tscore,&attr, runScore, NULL);
+    pthread_create(&tscore,&attr, runScore, NULL);
 
     //pthread_join(tmap,NULL);
     pthread_join(tmario,NULL);
     pthread_join(theart,NULL);
     pthread_join(tcoin,NULL);
-    //pthread_join(tscore,NULL);
+    pthread_join(tscore,NULL);
 	
 	/* free pixel's allocated memory */
 	free(pixel);
