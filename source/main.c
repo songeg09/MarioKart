@@ -1479,7 +1479,7 @@ void *runSmallHeart(void *unused){
             random = rand()%7;
 
             DrawingSmallHeart(gpioPtr, pixel, random); 
-            sleep(1); 
+            sleep(10); 
         }  
     }
 
@@ -1513,9 +1513,9 @@ int main(){
     p.lives = 4;
     p.score = 0;
     p.time = 180;
-    p.distance = 100;
+    p.distance = 120;
 
-    
+
     pthread_attr_t attr;
 
     pthread_t tmap, tmario, theart, tcoin, tscore, ttime, trtime, tgreenshell, tdistance, tsmallHeart;
