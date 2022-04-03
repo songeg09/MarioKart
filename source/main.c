@@ -22,6 +22,7 @@
 
 #include "TIME.h"
 #include "SCORE.h"
+#include "Finish.h"
 
 #include "ZERO.h"
 #include "ONE.h"
@@ -34,6 +35,7 @@
 #include "EIGHT.h"
 #include "NINE.h"
 
+#include "Rocket.h"
 #include "GreenShell.h"
 #include "smallHeart.h"
 
@@ -372,9 +374,13 @@ struct player {
 
     int score;
 
+    int timeleft;
+
     int time;
 
     int distance;
+
+    int stage;
 
     int winflag;
 
@@ -382,6 +388,80 @@ struct player {
 };
 
 struct player p;
+
+void DrawingFinish(unsigned int *gpioPtr, Pixel *pixel){
+    short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+    short int *FinishPtr=(short int *) FinishImage.pixel_data;
+
+    int finish_x = 19;
+    int w = 0;
+
+    while(p.winflag == 0 && p.loseflag == 0){
+        /*	Fixing Background	*/
+        
+        for (int y = 320; y < 704; y++ )
+        {
+            for (int x = (finish_x+1)*64 ; x < (finish_x+1)*64 + 64; x++) 
+            {
+                pixel->color = ExMapPtr[y*width+x]; 
+                pixel->x = x;
+                pixel->y = y;
+                drawPixel(pixel);
+        
+            }
+        }
+        
+        
+
+        if (finish_x == -1){
+            break;
+        }
+
+
+        if (p.current_x == finish_x*64){
+            p.stage++;
+
+            //p.distance = 100;
+            p.distance = 10;
+            
+            p.timeleft = p.timeleft + p.time;
+
+            if (p.stage < 4){
+
+                p.time = 120;
+
+            }
+        }
+  
+        w = 0;
+        for (int y = 320; y < 704; y++ )
+        {
+            for (int x = (finish_x)*64 ; x < (finish_x)*64 + 64; x++) 
+            {   
+                pixel->color = FinishPtr[w]; 
+                pixel->x = x;
+                pixel->y = y;
+                drawPixel(pixel);
+                w++;
+            }
+        }
+        
+        
+        if (p.stage == 1){
+            delayMicroseconds(170000);
+        }else if (p.stage ==2 ){
+            delayMicroseconds(150000);
+        }else if (p.stage == 3){
+            delayMicroseconds(130000);
+        }else{
+            delayMicroseconds(100000);
+        }
+        
+        finish_x = finish_x - 1;
+        
+    }
+
+}
 
 void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
 
@@ -421,8 +501,16 @@ void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
         }
 
         
+        if (p.stage == 1){
+            delayMicroseconds(170000);
+        }else if (p.stage ==2 ){
+            delayMicroseconds(150000);
+        }else if (p.stage == 3){
+            delayMicroseconds(130000);
+        }else{
+            delayMicroseconds(100000);
+        }
         
-        delayMicroseconds(170000);
     }
 }
 
@@ -552,7 +640,15 @@ void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
 			}
 		
 		}
-        delayMicroseconds(170000);
+        if (p.stage == 1){
+            delayMicroseconds(170000);
+        }else if (p.stage ==2 ){
+            delayMicroseconds(150000);
+        }else if (p.stage == 3){
+            delayMicroseconds(130000);
+        }else{
+            delayMicroseconds(100000);
+        }
 
 
 	}
@@ -618,7 +714,15 @@ void DrawingCoin(unsigned int *gpioPtr, Pixel *pixel, int lane){
                 }
             
             }
-            delayMicroseconds(170000);
+            if (p.stage == 1){
+                delayMicroseconds(170000);
+            }else if (p.stage ==2 ){
+                delayMicroseconds(150000);
+            }else if (p.stage == 3){
+                delayMicroseconds(130000);
+            }else{
+                delayMicroseconds(100000);
+            }
 
             coin_x = coin_x - 1;
         }else{
@@ -1158,13 +1262,13 @@ void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel, int lane){
     short int *GreenShellPtr=(short int *) GreenShellImage.pixel_data;
 
     int w;
-    int greenShell_x = 19;
+    int greenShell_x = 0;
 
     while(greenShell_x != -2){
         if (lane == 5 || lane == 6 || lane == 7 || lane == 8 || lane == 9 || lane == 10){
             for (int y = lane*64; y < lane*64 + 64; y++)
             {
-                for (int x = (greenShell_x+1)*64 ; x < (greenShell_x+1)*64 + 64; x++) 
+                for (int x = (greenShell_x-1)*64 ; x < (greenShell_x-1)*64 + 64; x++) 
                 {
                     
                     pixel->color = ExMapPtr[y*width+x]; 
@@ -1177,7 +1281,7 @@ void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel, int lane){
             
             }
 
-            if (greenShell_x == -1){
+            if (greenShell_x == 20){
                 break;
             }
 
@@ -1185,6 +1289,7 @@ void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel, int lane){
 
             if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
                 p.lives = p.lives - 1;
+                p.distance = p.distance + 2;
                 break;
             }
 
@@ -1206,9 +1311,17 @@ void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel, int lane){
                 }
             
             }
-            delayMicroseconds(75000);
+            if (p.stage == 1){
+                delayMicroseconds(75000);
+            }else if (p.stage ==2 ){
+                delayMicroseconds(65000);
+            }else if (p.stage == 3){
+                delayMicroseconds(55000);
+            }else{
+                delayMicroseconds(45000);
+            }
 
-            greenShell_x = greenShell_x - 1;
+            greenShell_x = greenShell_x + 1;
         }else{
             break;
         }
@@ -1271,7 +1384,15 @@ void DrawingSmallHeart(unsigned int *gpioPtr, Pixel *pixel, int lane){
                 }
             
             }
-            delayMicroseconds(170000);
+            if (p.stage == 1){
+                delayMicroseconds(170000);
+            }else if (p.stage ==2 ){
+                delayMicroseconds(150000);
+            }else if (p.stage == 3){
+                delayMicroseconds(130000);
+            }else{
+                delayMicroseconds(100000);
+            }
 
             heart_x = heart_x - 1;
         }else{
@@ -1280,212 +1401,374 @@ void DrawingSmallHeart(unsigned int *gpioPtr, Pixel *pixel, int lane){
     }
 }
 
-void *runMap(void *unused){
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
-
-    /* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-    
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
-
+void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel, int lane){
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+    short int *RocketPtr=(short int *) RocketImage.pixel_data;
 
-    for (int y = 320; y < 720; y++) {
-        for (int x = 0; x < 1280; x++){
-            pixel->color = ExMapPtr[y*width+x]; 
-            pixel->x = x;
-            pixel->y = y;
+    int w;
+    int rocket_x = 19;
 
-            drawPixel(pixel);
+    while(rocket_x != -2){
+        if (lane == 5 || lane == 6 || lane == 7 || lane == 8 || lane == 9 || lane == 10){
+            for (int y = lane*64; y < lane*64 + 64; y++)
+            {
+                for (int x = (rocket_x+1)*64 ; x < (rocket_x+1)*64 + 64; x++) 
+                {
+                    
+                    pixel->color = ExMapPtr[y*width+x]; 
+                    pixel->x = x;
+                    pixel->y = y;
+            
+                    drawPixel(pixel);
+            
+                }
+            
+            }
+
+            if (rocket_x == -1){
+                break;
+            }
+
+            w = 0;
+
+            if (p.current_x == rocket_x*64 && p.current_y == lane*64){
+                p.lives = p.lives - 1;
+                p.distance = p.distance + 2;
+                break;
+            }
+
+            /* Shell Location */
+            for (int y = lane*64; y < lane*64 + 64; y++)
+            {
+                for (int x = rocket_x*64; x < rocket_x*64 + 64; x++) 
+                {
+                    if (RocketPtr[w] == 0x000){
+                        pixel->color = ExMapPtr[y*width+x];
+                    }else{
+                        pixel->color = RocketPtr[w];
+                    }
+                    pixel->x = x;
+                    pixel->y = y;
+            
+                    drawPixel(pixel);
+                    w++;
+                }
+            
+            }
+            if (p.stage == 1){
+                delayMicroseconds(75000);
+            }else if (p.stage ==2 ){
+                delayMicroseconds(65000);
+            }else if (p.stage == 3){
+                delayMicroseconds(55000);
+            }else{
+                delayMicroseconds(45000);
+            }
+
+            rocket_x = rocket_x - 1;
+        }else{
+            break;
         }
     }
+}
 
-    DrawingMap(gpioPtr, pixel);    
+void *runMap(void *unused){
+    while (p.stage <5){
+        unsigned int *gpioPtr = getGPIOPtr();
+        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+        Init_GPIO(DAT, 0, gpioPtr);
 
+        /* initialize + get FBS */
+        framebufferstruct = initFbInfo();
+        
+        /* initialize a pixel */
+        Pixel *pixel;
+        pixel = malloc(sizeof(Pixel));
+
+        short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+
+        for (int y = 320; y < 720; y++) {
+            for (int x = 0; x < 1280; x++){
+                pixel->color = ExMapPtr[y*width+x]; 
+                pixel->x = x;
+                pixel->y = y;
+
+                drawPixel(pixel);
+            }
+        }
+
+        DrawingMap(gpioPtr, pixel);    
+
+        
+    }
     pthread_exit(0);
 }
 
 void *runMario(void *unused){
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
+    while (p.stage < 5){
+        unsigned int *gpioPtr = getGPIOPtr();
+        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+        Init_GPIO(DAT, 0, gpioPtr);
 
-    /* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-    
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
+        /* initialize + get FBS */
+        framebufferstruct = initFbInfo();
+        
+        /* initialize a pixel */
+        Pixel *pixel;
+        pixel = malloc(sizeof(Pixel));
 
-    DrawingMario(gpioPtr, pixel);    
+        DrawingMario(gpioPtr, pixel);   
 
+       
+    }
     pthread_exit(0);
 }
 
 void *runHeart(void *unused){
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
+    while (p.stage < 5){
+        unsigned int *gpioPtr = getGPIOPtr();
+        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+        Init_GPIO(DAT, 0, gpioPtr);
 
-    /* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-    
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
+        /* initialize + get FBS */
+        framebufferstruct = initFbInfo();
+        
+        /* initialize a pixel */
+        Pixel *pixel;
+        pixel = malloc(sizeof(Pixel));
 
-    DrawingHeart(gpioPtr, pixel);    
-
+        DrawingHeart(gpioPtr, pixel);    
+    }
     pthread_exit(0);
 }
 
 void *runCoin(void *unused){
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
+    while (p.stage < 5){
+        unsigned int *gpioPtr = getGPIOPtr();
+        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+        Init_GPIO(DAT, 0, gpioPtr);
 
-    /* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-    
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
+        /* initialize + get FBS */
+        framebufferstruct = initFbInfo();
+        
+        /* initialize a pixel */
+        Pixel *pixel;
+        pixel = malloc(sizeof(Pixel));
 
-    while ((p.winflag == 0) && (p.loseflag == 0)){
-        if (p.distance < 71){
-            srand(time(NULL));
-            int random = 0;
-            random = rand()%9;
+        while ((p.winflag == 0) && (p.loseflag == 0)){
+            if (p.distance > 0){
+                if (p.distance < 70){
+                    srand(time(NULL));
+                    int random = 0;
+                    random = rand()%6;
 
-            DrawingCoin(gpioPtr, pixel, random); 
-            sleep(1); 
-        }  
+                    DrawingCoin(gpioPtr, pixel, random+5); 
+                    sleep(2); 
+                }
+            }
+        }
+
+        
     }
-
     pthread_exit(0);
 }
 
 void *runScore(void *unused){
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
+    while (p.stage < 5){
+        unsigned int *gpioPtr = getGPIOPtr();
+        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+        Init_GPIO(DAT, 0, gpioPtr);
 
-    /* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-    
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
+        /* initialize + get FBS */
+        framebufferstruct = initFbInfo();
+        
+        /* initialize a pixel */
+        Pixel *pixel;
+        pixel = malloc(sizeof(Pixel));
 
-    DrawingScore(gpioPtr, pixel);    
+        DrawingScore(gpioPtr, pixel);    
+    }
 
     pthread_exit(0);
 }
 
 void *runTime(void *unused){
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
+    while (p.stage < 5){
+        unsigned int *gpioPtr = getGPIOPtr();
+        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+        Init_GPIO(DAT, 0, gpioPtr);
 
-    /* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-    
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
+        /* initialize + get FBS */
+        framebufferstruct = initFbInfo();
+        
+        /* initialize a pixel */
+        Pixel *pixel;
+        pixel = malloc(sizeof(Pixel));
 
-    DrawingTime(gpioPtr, pixel);    
+        DrawingTime(gpioPtr, pixel); 
+
+    }   
 
     pthread_exit(0);
 }
 
 void *tickTime(void *unused){
-    while((p.time != 0) && p.winflag == 0 && p.loseflag == 0){
-        sleep(1);
-        p.time = p.time - 1;
-    }
+    while (p.stage < 5){
+        while((p.time != 0) && p.winflag == 0 && p.loseflag == 0){
+            sleep(1);
+            p.time = p.time - 1;
+        }
 
-    p.loseflag = 1;
+        p.loseflag = 1;
+    }
 
     pthread_exit(0);
 }
 
 void *runGreenShell(void *unused){
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
+    while (p.stage < 5){
+        unsigned int *gpioPtr = getGPIOPtr();
+        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+        Init_GPIO(DAT, 0, gpioPtr);
 
-    /* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-    
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
-
-    while ((p.winflag == 0) && (p.loseflag == 0)){
-        srand(time(NULL));
-        int random = 0;
-        random = rand()%8;
-
-        DrawingGreenShell(gpioPtr, pixel, random);
-
-        sleep(1);    
-    }
+        /* initialize + get FBS */
+        framebufferstruct = initFbInfo();
         
+        /* initialize a pixel */
+        Pixel *pixel;
+        pixel = malloc(sizeof(Pixel));
+
+        while ((p.winflag == 0) && (p.loseflag == 0)){
+            if (p.distance > 0){
+                srand(time(NULL));
+                int random = 0;
+                random = rand()%9;
+                if (random == 0){
+                    random = 10;
+                }
+
+                DrawingGreenShell(gpioPtr, pixel, random);
+
+                sleep(1); 
+            }   
+        }
+
+    }   
+
+    pthread_exit(0);
+}
+
+void *runRocket(void *unused){
+    while (p.stage < 5){
+        unsigned int *gpioPtr = getGPIOPtr();
+        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+        Init_GPIO(DAT, 0, gpioPtr);
+
+        /* initialize + get FBS */
+        framebufferstruct = initFbInfo();
+        
+        /* initialize a pixel */
+        Pixel *pixel;
+        pixel = malloc(sizeof(Pixel));
+
+        while ((p.winflag == 0) && (p.loseflag == 0)){
+            if (p.distance > 0){
+                srand(time(NULL));
+                int random = 0;
+                random = rand()%8;
+                if (random == 0){
+                    random = 10;
+                }
+
+                DrawingRocket(gpioPtr, pixel, random);
+
+                sleep(1);
+            }    
+        }
+
+    }   
 
     pthread_exit(0);
 }
 
 void *distance(void *unused){
-    while((p.time != 0) && p.winflag == 0 && p.loseflag == 0 && p.distance != 0){
-        sleep(1);
-        p.distance = p.distance - 1;
+    while(p.stage < 5){
+        while((p.time != 0) && p.winflag == 0 && p.loseflag == 0 && p.distance != 0){
+            sleep(1);
+            p.distance = p.distance - 1;
+        }    
+        
+
     }
-
-    p.winflag = 1;
-
     pthread_exit(0);
 
 }
 
 void *runSmallHeart(void *unused){
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
+    while (p.stage < 5){
+        unsigned int *gpioPtr = getGPIOPtr();
+        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+        Init_GPIO(DAT, 0, gpioPtr);
 
-    /* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-    
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
+        /* initialize + get FBS */
+        framebufferstruct = initFbInfo();
+        
+        /* initialize a pixel */
+        Pixel *pixel;
+        pixel = malloc(sizeof(Pixel));
 
-    while ((p.winflag == 0) && (p.loseflag == 0)){
-        if (p.distance < 71){
-            srand(time(NULL));
-            int random = 0;
-            random = rand()%7;
+        while ((p.winflag == 0) && (p.loseflag == 0)){
+            if (p.distance > 0){
+                if (p.distance < 70){
+                    srand(time(NULL));
+                    int random = 0;
+                    random = rand()%7;
 
-            DrawingSmallHeart(gpioPtr, pixel, random); 
-            sleep(10); 
-        }  
+                    DrawingSmallHeart(gpioPtr, pixel, random); 
+                    sleep(10); 
+                }  
+            }
+        }
+
     }
 
     pthread_exit(0);
 }
 
+void *runFinish(void *unused){
+    while (p.stage < 5){
+        unsigned int *gpioPtr = getGPIOPtr();
+        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+        Init_GPIO(DAT, 0, gpioPtr);
+
+        /* initialize + get FBS */
+        framebufferstruct = initFbInfo();
+        
+        /* initialize a pixel */
+        Pixel *pixel;
+        pixel = malloc(sizeof(Pixel));
+
+         while ((p.winflag == 0) && (p.loseflag == 0)){
+            if (p.distance == 0){
+
+                DrawingFinish(gpioPtr, pixel);  
+            }  
+        }
+
+    }
+
+    pthread_exit(0);
+}
 
 
 /* main function */
@@ -1512,14 +1795,14 @@ int main(){
     p.loseflag = 0;
     p.lives = 4;
     p.score = 0;
-    p.time = 180;
-    p.distance = 120;
+    p.time = 120;
+    p.distance = 10;
+    p.stage = 1;
 
 
     pthread_attr_t attr;
 
-    pthread_t tmap, tmario, theart, tcoin, tscore, ttime, trtime, tgreenshell, tdistance, tsmallHeart;
-
+    pthread_t tmap, tmario, theart, tcoin, tscore, ttime, trtime, tgreenshell, tdistance, tsmallHeart, trocket, tfinish;
 
 
     pthread_attr_init(&attr);
@@ -1533,6 +1816,8 @@ int main(){
     pthread_create(&tgreenshell,&attr, runGreenShell, NULL);
     pthread_create(&tdistance,&attr, distance, NULL);
     pthread_create(&tsmallHeart,&attr, runSmallHeart, NULL);
+    pthread_create(&trocket,&attr, runRocket, NULL);
+    pthread_create(&tfinish,&attr, runFinish, NULL);
 
 
     //pthread_join(tmap,NULL);
@@ -1545,6 +1830,8 @@ int main(){
     pthread_join(tgreenshell,NULL);
     pthread_join(tdistance,NULL);
     pthread_join(tsmallHeart,NULL);
+    pthread_join(trocket,NULL);
+    pthread_join(tfinish,NULL);
 	
 	/* free pixel's allocated memory */
 	free(pixel);
