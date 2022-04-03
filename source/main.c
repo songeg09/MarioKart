@@ -35,6 +35,7 @@
 #include "EIGHT.h"
 #include "NINE.h"
 
+#include "Clock.h"
 #include "Rocket.h"
 #include "GreenShell.h"
 #include "smallHeart.h"
@@ -385,10 +386,15 @@ struct player {
     int winflag;
 
     int loseflag;
+
+    int game_on;
 };
 
 struct player p;
 
+
+
+// Finish
 void DrawingFinish(unsigned int *gpioPtr, Pixel *pixel){
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
     short int *FinishPtr=(short int *) FinishImage.pixel_data;
@@ -419,18 +425,24 @@ void DrawingFinish(unsigned int *gpioPtr, Pixel *pixel){
 
 
         if (p.current_x == finish_x*64){
-            p.stage++;
+            //p.stage++;
+
+            //if (p.stage == 5){
+            //    p.winflag = 1;
+            //}
 
             //p.distance = 100;
-            p.distance = 10;
+            // p.distance = 80;
             
-            p.timeleft = p.timeleft + p.time;
+            // p.timeleft = p.timeleft + p.time;
 
-            if (p.stage < 4){
+            // if (p.stage < 4){
 
-                p.time = 120;
+            //     p.time = 100;
 
-            }
+            // }
+
+            break;
         }
   
         w = 0;
@@ -463,6 +475,35 @@ void DrawingFinish(unsigned int *gpioPtr, Pixel *pixel){
 
 }
 
+void *runFinish(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+
+        while ((p.winflag == 0) && (p.loseflag == 0)){
+        if (p.distance == 0){
+
+            DrawingFinish(gpioPtr, pixel);  
+        }  
+    }
+
+    
+
+    pthread_exit(0);
+}
+
+
+
+// Map
 void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
 
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
@@ -514,6 +555,42 @@ void DrawingMap(unsigned int *gpioPtr, Pixel *pixel){
     }
 }
 
+void *runMap(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+
+    short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+
+    for (int y = 320; y < 720; y++) {
+        for (int x = 0; x < 1280; x++){
+            pixel->color = ExMapPtr[y*width+x]; 
+            pixel->x = x;
+            pixel->y = y;
+
+            drawPixel(pixel);
+        }
+    }
+
+    DrawingMap(gpioPtr, pixel);    
+
+        
+    
+    pthread_exit(0);
+}
+
+
+
+// Heart
 void DrawingHeart(unsigned int *gpioPtr, Pixel *pixel){
 
     short int *HeartPtr=(short int *) HeartImage.pixel_data;
@@ -575,6 +652,28 @@ void DrawingHeart(unsigned int *gpioPtr, Pixel *pixel){
 
 }
 
+void *runHeart(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+
+    DrawingHeart(gpioPtr, pixel);    
+    
+    pthread_exit(0);
+}
+
+
+
+// Mario
 void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
     short int *MarioPtr=(short int *) MarioImage.pixel_data;
@@ -654,6 +753,30 @@ void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
 	}
 }
 
+void *runMario(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+
+    DrawingMario(gpioPtr, pixel);   
+
+       
+    
+    pthread_exit(0);
+}
+
+
+
+// Coin
 void DrawingCoin(unsigned int *gpioPtr, Pixel *pixel, int lane){
 
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
@@ -732,6 +855,319 @@ void DrawingCoin(unsigned int *gpioPtr, Pixel *pixel, int lane){
 
 }
 
+void *runCoin(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+
+    while ((p.winflag == 0) && (p.loseflag == 0)){
+        if (p.distance > 0){
+            if (p.distance < 50){
+                srand(time(NULL));
+                int random = 0;
+                random = rand()%6;
+
+                DrawingCoin(gpioPtr, pixel, random+5); 
+                sleep(2); 
+            }
+        }
+    }
+
+        
+    
+    pthread_exit(0);
+}
+
+
+
+// Time
+void DrawingTimeNumbers(unsigned int *gpioPtr, Pixel *pixel, int Number, int digit){
+    short int *ZEROPtr=(short int *) ZEROImage.pixel_data;
+    short int *ONEPtr=(short int *) ONEImage.pixel_data;
+    short int *TWOPtr=(short int *) TWOImage.pixel_data;
+    short int *THREEPtr=(short int *) THREEImage.pixel_data;
+    short int *FOURPtr=(short int *) FOURImage.pixel_data;
+    short int *FIVEPtr=(short int *) FIVEImage.pixel_data;
+    short int *SIXPtr=(short int *) SIXImage.pixel_data;
+    short int *SEVENPtr=(short int *) SEVENImage.pixel_data;
+    short int *EIGHTPtr=(short int *) EIGHTImage.pixel_data;
+    short int *NINEPtr=(short int *) NINEImage.pixel_data;
+    short int *TIMEPtr=(short int *) TIMEImage.pixel_data;
+
+    int w = 0;
+
+    for (int y = 0; y < 64; y++){
+        for (int x = 0; x < 192; x++){
+            
+            pixel->color = TIMEPtr[w];
+            pixel->x = x+320;
+            pixel->y = y;
+        
+            drawPixel(pixel);
+            w++;
+        }
+    
+    }
+
+    w = 0;
+
+    if (Number == 0){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = ZEROPtr[w];
+                if (digit == 1){
+                    pixel->x = x+640;
+                }else if (digit == 10){
+                    pixel->x = x+576;
+                }else if (digit == 100){
+                    pixel->x = x+512;
+                }
+                pixel->y = y;
+            
+                drawPixel(pixel);
+                w++;
+            }
+		
+	    }
+    }else if (Number == 1){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = ONEPtr[w];
+                if (digit == 1){
+                    pixel->x = x+640;
+                }else if (digit == 10){
+                    pixel->x = x+576;
+                }else if (digit == 100){
+                    pixel->x = x+512;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 2){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = TWOPtr[w];
+                if (digit == 1){
+                    pixel->x = x+640;
+                }else if (digit == 10){
+                    pixel->x = x+576;
+                }else if (digit == 100){
+                    pixel->x = x+512;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if ( Number == 3){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = THREEPtr[w];
+                if (digit == 1){
+                    pixel->x = x+640;
+                }else if (digit == 10){
+                    pixel->x = x+576;
+                }else if (digit == 100){
+                    pixel->x = x+512;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+        }
+    }else if (Number == 4){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = FOURPtr[w];
+                if (digit == 1){
+                    pixel->x = x+640;
+                }else if (digit == 10){
+                    pixel->x = x+576;
+                }else if (digit == 100){
+                    pixel->x = x+512;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 5){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = FIVEPtr[w];
+                if (digit == 1){
+                    pixel->x = x+640;
+                }else if (digit == 10){
+                    pixel->x = x+576;
+                }else if (digit == 100){
+                    pixel->x = x+512;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 6){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = SIXPtr[w];
+                if (digit == 1){
+                    pixel->x = x+640;
+                }else if (digit == 10){
+                    pixel->x = x+576;
+                }else if (digit == 100){
+                    pixel->x = x+512;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 7){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = SEVENPtr[w];
+                if (digit == 1){
+                    pixel->x = x+640;
+                }else if (digit == 10){
+                    pixel->x = x+576;
+                }else if (digit == 100){
+                    pixel->x = x+512;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 8){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = EIGHTPtr[w];
+                if (digit == 1){
+                    pixel->x = x+640;
+                }else if (digit == 10){
+                    pixel->x = x+576;
+                }else if (digit == 100){
+                    pixel->x = x+512;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }else if (Number == 9){
+        for (int y = 0; y < 64; y++){
+            for (int x = 0; x < 64; x++){
+                
+                pixel->color = NINEPtr[w];
+                if (digit == 1){
+                    pixel->x = x+640;
+                }else if (digit == 10){
+                    pixel->x = x+576;
+                }else if (digit == 100){
+                    pixel->x = x+512;
+                }
+                pixel->y = y;
+        
+                drawPixel(pixel);
+                w++;
+            }
+    
+        }
+    }
+}
+
+void DrawingTime(unsigned int *gpioPtr, Pixel *pixel){
+    int one_digit = 0;
+    int ten_digit = 0;
+    int hundred_digit = 0;
+
+    while(1){
+
+        one_digit = p.time % 10;
+        DrawingTimeNumbers(gpioPtr,pixel,one_digit,1);
+
+        ten_digit = (p.time/10) % 10;
+        DrawingTimeNumbers(gpioPtr,pixel,ten_digit,10);
+
+        hundred_digit = p.time/100;
+        DrawingTimeNumbers(gpioPtr,pixel,hundred_digit,100);
+        
+    }
+}
+
+void *runTime(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+
+    DrawingTime(gpioPtr, pixel); 
+
+      
+
+    pthread_exit(0);
+}
+
+void *tickTime(void *unused){
+    
+    while((p.time != 0) && p.winflag == 0 && p.loseflag == 0){
+        sleep(1);
+        p.time = p.time - 1;
+    }
+
+    p.loseflag = 1;
+    
+
+    pthread_exit(0);
+}
+
+
+
+// Score
 void DrawingScoreNumbers(unsigned int *gpioPtr, Pixel *pixel, int Number, int digit){
 
     short int *ZEROPtr=(short int *) ZEROImage.pixel_data;
@@ -989,228 +1425,6 @@ void DrawingScoreNumbers(unsigned int *gpioPtr, Pixel *pixel, int Number, int di
     }
 }
 
-void DrawingTimeNumbers(unsigned int *gpioPtr, Pixel *pixel, int Number, int digit){
-    short int *ZEROPtr=(short int *) ZEROImage.pixel_data;
-    short int *ONEPtr=(short int *) ONEImage.pixel_data;
-    short int *TWOPtr=(short int *) TWOImage.pixel_data;
-    short int *THREEPtr=(short int *) THREEImage.pixel_data;
-    short int *FOURPtr=(short int *) FOURImage.pixel_data;
-    short int *FIVEPtr=(short int *) FIVEImage.pixel_data;
-    short int *SIXPtr=(short int *) SIXImage.pixel_data;
-    short int *SEVENPtr=(short int *) SEVENImage.pixel_data;
-    short int *EIGHTPtr=(short int *) EIGHTImage.pixel_data;
-    short int *NINEPtr=(short int *) NINEImage.pixel_data;
-    short int *TIMEPtr=(short int *) TIMEImage.pixel_data;
-
-    int w = 0;
-
-    for (int y = 0; y < 64; y++){
-        for (int x = 0; x < 192; x++){
-            
-            pixel->color = TIMEPtr[w];
-            pixel->x = x+320;
-            pixel->y = y;
-        
-            drawPixel(pixel);
-            w++;
-        }
-    
-    }
-
-    w = 0;
-
-    if (Number == 0){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = ZEROPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if (Number == 1){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = ONEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 2){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = TWOPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if ( Number == 3){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = THREEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-        }
-    }else if (Number == 4){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = FOURPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 5){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = FIVEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 6){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = SIXPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 7){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = SEVENPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 8){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = EIGHTPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 9){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = NINEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }
-}
-
 void DrawingScore(unsigned int *gpioPtr, Pixel *pixel){
 
     int one_digit = 0;
@@ -1238,25 +1452,29 @@ void DrawingScore(unsigned int *gpioPtr, Pixel *pixel){
 
 }
 
-void DrawingTime(unsigned int *gpioPtr, Pixel *pixel){
-    int one_digit = 0;
-    int ten_digit = 0;
-    int hundred_digit = 0;
+void *runScore(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
 
-    while(1){
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
 
-        one_digit = p.time % 10;
-        DrawingTimeNumbers(gpioPtr,pixel,one_digit,1);
+    DrawingScore(gpioPtr, pixel);    
+    
 
-        ten_digit = (p.time/10) % 10;
-        DrawingTimeNumbers(gpioPtr,pixel,ten_digit,10);
-
-        hundred_digit = p.time/100;
-        DrawingTimeNumbers(gpioPtr,pixel,hundred_digit,100);
-        
-    }
+    pthread_exit(0);
 }
 
+
+
+// Green Shell
 void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel, int lane){
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
     short int *GreenShellPtr=(short int *) GreenShellImage.pixel_data;
@@ -1328,6 +1546,41 @@ void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel, int lane){
     }
 }
 
+void *runGreenShell(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+
+    while ((p.winflag == 0) && (p.loseflag == 0)){
+        if (p.distance > 0 && p.distance == 95){
+            srand(time(NULL));
+            int random = 0;
+            random = rand()%9;
+            
+
+            DrawingGreenShell(gpioPtr, pixel, random+5);
+
+            sleep(1); 
+        }   
+    }
+
+       
+
+    pthread_exit(0);
+}
+
+
+
+// Small Heart
 void DrawingSmallHeart(unsigned int *gpioPtr, Pixel *pixel, int lane){
 
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
@@ -1401,6 +1654,41 @@ void DrawingSmallHeart(unsigned int *gpioPtr, Pixel *pixel, int lane){
     }
 }
 
+void *runSmallHeart(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+
+    while ((p.winflag == 0) && (p.loseflag == 0)){
+        if (p.distance > 0){
+            if (p.distance < 50){
+                srand(time(NULL));
+                int random = 0;
+                random = rand()%7;
+
+                DrawingSmallHeart(gpioPtr, pixel, random+5); 
+                sleep(10); 
+            }  
+        }
+    }
+
+    
+
+    pthread_exit(0);
+}
+
+
+
+// Rocket
 void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel, int lane){
     short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
     short int *RocketPtr=(short int *) RocketImage.pixel_data;
@@ -1472,303 +1760,164 @@ void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel, int lane){
     }
 }
 
-void *runMap(void *unused){
-    while (p.stage <5){
-        unsigned int *gpioPtr = getGPIOPtr();
-        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-        Init_GPIO(DAT, 0, gpioPtr);
+void *runRocket(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
 
-        /* initialize + get FBS */
-        framebufferstruct = initFbInfo();
-        
-        /* initialize a pixel */
-        Pixel *pixel;
-        pixel = malloc(sizeof(Pixel));
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
 
-        short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+    while ((p.winflag == 0) && (p.loseflag == 0)){
+        if (p.distance > 0 && p.distance == 95){
+            srand(time(NULL));
+            int random = 0;
+            random = rand()%8;
 
-        for (int y = 320; y < 720; y++) {
-            for (int x = 0; x < 1280; x++){
-                pixel->color = ExMapPtr[y*width+x]; 
-                pixel->x = x;
-                pixel->y = y;
+            DrawingRocket(gpioPtr, pixel, random+5);
 
-                drawPixel(pixel);
-            }
-        }
-
-        DrawingMap(gpioPtr, pixel);    
-
-        
+            sleep(1);
+        }    
     }
-    pthread_exit(0);
-}
-
-void *runMario(void *unused){
-    while (p.stage < 5){
-        unsigned int *gpioPtr = getGPIOPtr();
-        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-        Init_GPIO(DAT, 0, gpioPtr);
-
-        /* initialize + get FBS */
-        framebufferstruct = initFbInfo();
-        
-        /* initialize a pixel */
-        Pixel *pixel;
-        pixel = malloc(sizeof(Pixel));
-
-        DrawingMario(gpioPtr, pixel);   
 
        
-    }
+
     pthread_exit(0);
 }
 
-void *runHeart(void *unused){
-    while (p.stage < 5){
-        unsigned int *gpioPtr = getGPIOPtr();
-        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-        Init_GPIO(DAT, 0, gpioPtr);
 
-        /* initialize + get FBS */
-        framebufferstruct = initFbInfo();
-        
-        /* initialize a pixel */
-        Pixel *pixel;
-        pixel = malloc(sizeof(Pixel));
 
-        DrawingHeart(gpioPtr, pixel);    
-    }
-    pthread_exit(0);
-}
+// Clock
+void DrawingClock(unsigned int *gpioPtr, Pixel *pixel, int lane){
+    short int *ExMapPtr=(short int *) ExMapImage.pixel_data;
+    short int *ClockPtr=(short int *) ClockImage.pixel_data;
 
-void *runCoin(void *unused){
-    while (p.stage < 5){
-        unsigned int *gpioPtr = getGPIOPtr();
-        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-        Init_GPIO(DAT, 0, gpioPtr);
+    int w;
+    int clock_x = 19;
 
-        /* initialize + get FBS */
-        framebufferstruct = initFbInfo();
-        
-        /* initialize a pixel */
-        Pixel *pixel;
-        pixel = malloc(sizeof(Pixel));
-
-        while ((p.winflag == 0) && (p.loseflag == 0)){
-            if (p.distance > 0){
-                if (p.distance < 70){
-                    srand(time(NULL));
-                    int random = 0;
-                    random = rand()%6;
-
-                    DrawingCoin(gpioPtr, pixel, random+5); 
-                    sleep(2); 
+    while(1){
+        if (lane == 5 || lane == 6 || lane == 7 || lane == 8 || lane == 9 || lane == 10){
+            /*	Fixing Background	*/
+            for (int y = lane*64; y < lane*64 + 64; y++)
+            {
+                for (int x = (clock_x+1)*64 ; x < (clock_x+1)*64 + 64; x++) 
+                {
+                    
+                    pixel->color = ExMapPtr[y*width+x]; 
+                    pixel->x = x;
+                    pixel->y = y;
+            
+                    drawPixel(pixel);
                 }
             }
-        }
 
-        
-    }
-    pthread_exit(0);
-}
-
-void *runScore(void *unused){
-    while (p.stage < 5){
-        unsigned int *gpioPtr = getGPIOPtr();
-        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-        Init_GPIO(DAT, 0, gpioPtr);
-
-        /* initialize + get FBS */
-        framebufferstruct = initFbInfo();
-        
-        /* initialize a pixel */
-        Pixel *pixel;
-        pixel = malloc(sizeof(Pixel));
-
-        DrawingScore(gpioPtr, pixel);    
-    }
-
-    pthread_exit(0);
-}
-
-void *runTime(void *unused){
-    while (p.stage < 5){
-        unsigned int *gpioPtr = getGPIOPtr();
-        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-        Init_GPIO(DAT, 0, gpioPtr);
-
-        /* initialize + get FBS */
-        framebufferstruct = initFbInfo();
-        
-        /* initialize a pixel */
-        Pixel *pixel;
-        pixel = malloc(sizeof(Pixel));
-
-        DrawingTime(gpioPtr, pixel); 
-
-    }   
-
-    pthread_exit(0);
-}
-
-void *tickTime(void *unused){
-    while (p.stage < 5){
-        while((p.time != 0) && p.winflag == 0 && p.loseflag == 0){
-            sleep(1);
-            p.time = p.time - 1;
-        }
-
-        p.loseflag = 1;
-    }
-
-    pthread_exit(0);
-}
-
-void *runGreenShell(void *unused){
-    while (p.stage < 5){
-        unsigned int *gpioPtr = getGPIOPtr();
-        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-        Init_GPIO(DAT, 0, gpioPtr);
-
-        /* initialize + get FBS */
-        framebufferstruct = initFbInfo();
-        
-        /* initialize a pixel */
-        Pixel *pixel;
-        pixel = malloc(sizeof(Pixel));
-
-        while ((p.winflag == 0) && (p.loseflag == 0)){
-            if (p.distance > 0){
-                srand(time(NULL));
-                int random = 0;
-                random = rand()%9;
-                if (random == 0){
-                    random = 10;
-                }
-
-                DrawingGreenShell(gpioPtr, pixel, random);
-
-                sleep(1); 
-            }   
-        }
-
-    }   
-
-    pthread_exit(0);
-}
-
-void *runRocket(void *unused){
-    while (p.stage < 5){
-        unsigned int *gpioPtr = getGPIOPtr();
-        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-        Init_GPIO(DAT, 0, gpioPtr);
-
-        /* initialize + get FBS */
-        framebufferstruct = initFbInfo();
-        
-        /* initialize a pixel */
-        Pixel *pixel;
-        pixel = malloc(sizeof(Pixel));
-
-        while ((p.winflag == 0) && (p.loseflag == 0)){
-            if (p.distance > 0){
-                srand(time(NULL));
-                int random = 0;
-                random = rand()%8;
-                if (random == 0){
-                    random = 10;
-                }
-
-                DrawingRocket(gpioPtr, pixel, random);
-
-                sleep(1);
-            }    
-        }
-
-    }   
-
-    pthread_exit(0);
-}
-
-void *distance(void *unused){
-    while(p.stage < 5){
-        while((p.time != 0) && p.winflag == 0 && p.loseflag == 0 && p.distance != 0){
-            sleep(1);
-            p.distance = p.distance - 1;
-        }    
-        
-
-    }
-    pthread_exit(0);
-
-}
-
-void *runSmallHeart(void *unused){
-    while (p.stage < 5){
-        unsigned int *gpioPtr = getGPIOPtr();
-        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-        Init_GPIO(DAT, 0, gpioPtr);
-
-        /* initialize + get FBS */
-        framebufferstruct = initFbInfo();
-        
-        /* initialize a pixel */
-        Pixel *pixel;
-        pixel = malloc(sizeof(Pixel));
-
-        while ((p.winflag == 0) && (p.loseflag == 0)){
-            if (p.distance > 0){
-                if (p.distance < 70){
-                    srand(time(NULL));
-                    int random = 0;
-                    random = rand()%7;
-
-                    DrawingSmallHeart(gpioPtr, pixel, random); 
-                    sleep(10); 
-                }  
+            if (clock_x == -1){
+                break;
             }
+
+            w = 0;
+
+            if (p.current_x == clock_x*64 && p.current_y == lane*64){
+                if (p.lives < 5){
+                    p.time = p.time + 5;
+                }
+
+                break;
+            }
+
+            /* Coin Location */
+            for (int y = lane*64; y < lane*64 + 64; y++)
+            {
+                for (int x = clock_x*64; x < clock_x*64 + 64; x++) 
+                {
+                    if (ClockPtr[w] == 0x000){
+                        pixel->color = ExMapPtr[y*width+x];
+                    }else{
+                        pixel->color = ClockPtr[w];
+                    }
+                    pixel->x = x;
+                    pixel->y = y;
+            
+                    drawPixel(pixel);
+                    w++;
+                }
+            
+            }
+            if (p.stage == 1){
+                delayMicroseconds(170000);
+            }else if (p.stage ==2 ){
+                delayMicroseconds(150000);
+            }else if (p.stage == 3){
+                delayMicroseconds(130000);
+            }else{
+                delayMicroseconds(100000);
+            }
+
+            clock_x = clock_x - 1;
+        }else{
+            break;
         }
-
     }
-
-    pthread_exit(0);
 }
 
-void *runFinish(void *unused){
-    while (p.stage < 5){
-        unsigned int *gpioPtr = getGPIOPtr();
-        Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-        Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-        Init_GPIO(DAT, 0, gpioPtr);
+void *runClock(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
 
-        /* initialize + get FBS */
-        framebufferstruct = initFbInfo();
-        
-        /* initialize a pixel */
-        Pixel *pixel;
-        pixel = malloc(sizeof(Pixel));
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
 
-         while ((p.winflag == 0) && (p.loseflag == 0)){
-            if (p.distance == 0){
+    while ((p.winflag == 0) && (p.loseflag == 0)){
+        if (p.distance > 0){
+            if (p.distance < 50){
+                srand(time(NULL));
+                int random = 0;
+                random = rand()/23;
+                random = random % 6;
 
-                DrawingFinish(gpioPtr, pixel);  
+                DrawingClock(gpioPtr, pixel, random+5); 
+                sleep(5); 
             }  
         }
-
     }
+    
 
     pthread_exit(0);
+
 }
+
+
+
+// Distance
+void *distance(void *unused){
+    
+    while((p.time != 0) && p.winflag == 0 && p.loseflag == 0 && p.distance != 0){
+        sleep(1);
+        p.distance = p.distance - 1;
+    }    
+        
+    pthread_exit(0);
+
+}
+
+
+
+
+
+
 
 
 /* main function */
@@ -1789,49 +1938,65 @@ int main(){
     
     opening(gpioPtr, pixel);
 
-    mainMenu(gpioPtr, pixel);
+    while(1){
+        mainMenu(gpioPtr, pixel);
 
-    p.winflag = 0;
-    p.loseflag = 0;
-    p.lives = 4;
-    p.score = 0;
-    p.time = 120;
-    p.distance = 10;
-    p.stage = 1;
+        p.winflag = 0;
+        p.loseflag = 0;
+        p.lives = 4;
+        p.score = 0;
+        p.time = 100;
+        p.timeleft = 0;
+        p.distance = 80;
+        p.stage = 1;
 
+        while (p.stage < 5){
+            pthread_attr_t attr;
 
-    pthread_attr_t attr;
-
-    pthread_t tmap, tmario, theart, tcoin, tscore, ttime, trtime, tgreenshell, tdistance, tsmallHeart, trocket, tfinish;
-
-
-    pthread_attr_init(&attr);
-    pthread_create(&tmap,&attr, runMap, NULL);
-    pthread_create(&tmario,&attr, runMario, NULL);
-    pthread_create(&theart,&attr, runHeart, NULL);
-    pthread_create(&tcoin,&attr, runCoin, NULL);
-    pthread_create(&tscore,&attr, runScore, NULL);
-    pthread_create(&ttime,&attr, tickTime, NULL);
-    pthread_create(&trtime,&attr, runTime, NULL);
-    pthread_create(&tgreenshell,&attr, runGreenShell, NULL);
-    pthread_create(&tdistance,&attr, distance, NULL);
-    pthread_create(&tsmallHeart,&attr, runSmallHeart, NULL);
-    pthread_create(&trocket,&attr, runRocket, NULL);
-    pthread_create(&tfinish,&attr, runFinish, NULL);
+            pthread_t tmap, tmario, theart, tcoin, tscore, ttime, trtime, tgreenshell, tdistance, tsmallHeart, trocket, tfinish, tclock;
 
 
-    //pthread_join(tmap,NULL);
-    pthread_join(tmario,NULL);
-    pthread_join(theart,NULL);
-    pthread_join(tcoin,NULL);
-    pthread_join(tscore,NULL);
-    pthread_join(ttime,NULL);
-    pthread_join(trtime,NULL);
-    pthread_join(tgreenshell,NULL);
-    pthread_join(tdistance,NULL);
-    pthread_join(tsmallHeart,NULL);
-    pthread_join(trocket,NULL);
-    pthread_join(tfinish,NULL);
+            pthread_attr_init(&attr);
+            
+            pthread_create(&tmario,&attr, runMario, NULL);
+            pthread_create(&theart,&attr, runHeart, NULL);
+            pthread_create(&tcoin,&attr, runCoin, NULL);
+            pthread_create(&tscore,&attr, runScore, NULL);
+            pthread_create(&ttime,&attr, tickTime, NULL);
+            pthread_create(&trtime,&attr, runTime, NULL);
+            pthread_create(&tgreenshell,&attr, runGreenShell, NULL);
+            pthread_create(&tdistance,&attr, distance, NULL);
+            pthread_create(&tsmallHeart,&attr, runSmallHeart, NULL);
+            pthread_create(&trocket,&attr, runRocket, NULL);
+            pthread_create(&tfinish,&attr, runFinish, NULL);
+            pthread_create(&tclock,&attr, runClock, NULL);
+            pthread_create(&tmap,&attr, runMap, NULL);
+
+
+            pthread_join(tmap,NULL);
+            pthread_join(tmario,NULL);
+            pthread_join(theart,NULL);
+            pthread_join(tcoin,NULL);
+            pthread_join(tscore,NULL);
+            pthread_join(ttime,NULL);
+            pthread_join(trtime,NULL);
+            pthread_join(tgreenshell,NULL);
+            pthread_join(tdistance,NULL);
+            pthread_join(tsmallHeart,NULL);
+            pthread_join(trocket,NULL);
+            pthread_join(tfinish,NULL);
+            pthread_join(tclock,NULL);
+
+            p.timeleft = p.timeleft + p.time;
+
+            p.stage ++;
+            p.time = 100;
+            p.distance = 80;
+            
+
+        }
+
+    }
 	
 	/* free pixel's allocated memory */
 	free(pixel);
