@@ -55,6 +55,8 @@
 #include "WIN.h"
 #include "FINALSCORE.h"
 
+#include "PAUSE.h"
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                              //
@@ -746,7 +748,7 @@ void DrawingPauseScreen(unsigned int *gpioPtr, Pixel *pixel){
         MapPtr=(short int *) Map4Image.pixel_data;
     }
 
-    short int *MainMenuPtr=(short int *) MainMenuImage.pixel_data;
+    short int *PAUSEPtr=(short int *) PAUSEImage.pixel_data;
 
     while (p.game_on == 1){   
 
@@ -759,7 +761,7 @@ void DrawingPauseScreen(unsigned int *gpioPtr, Pixel *pixel){
             {
                 for (int x = 0; x < width; x++) 
                 {	
-                    pixel->color = MainMenuPtr[i];
+                    pixel->color = PAUSEPtr[i];
                     pixel->x = x;
                     pixel->y = y;
             
@@ -776,10 +778,10 @@ void DrawingPauseScreen(unsigned int *gpioPtr, Pixel *pixel){
                 // when cursor is on play
                 if (cursor == 0){
                     // Fixing the background
-                    for (int y = 520; y < 584; y++){
-                        for (int x = 460; x < 524; x++) {
+                    for (int y = 430; y < 494; y++){
+                        for (int x = 490; x < 554; x++) {
                         
-                            pixel->color = MainMenuPtr[y*width+x];
+                            pixel->color = PAUSEPtr[y*width+x];
                             pixel->x = x;
                             pixel->y = y;
                 
@@ -791,11 +793,11 @@ void DrawingPauseScreen(unsigned int *gpioPtr, Pixel *pixel){
 
                     i = 0;
                     // Draw the arrow
-                    for (int y = 370; y < 434; y++){
-                        for (int x = 460; x < 524; x++) {
+                    for (int y = 300; y < 364; y++){
+                        for (int x = 440; x < 504; x++) {
                         
                             if (ArrowPtr[i] == 0x000){
-                                pixel->color = MainMenuPtr[y*width+x];
+                                pixel->color = PAUSEPtr[y*width+x];
                             }else{
                                 pixel->color = ArrowPtr[i];
                             } 
@@ -811,10 +813,10 @@ void DrawingPauseScreen(unsigned int *gpioPtr, Pixel *pixel){
                 // when cursor is on quit button
                 }else if (cursor == 1){
                     // Fixing the background
-                    for (int y = 370; y < 434; y++){
-                        for (int x = 460; x < 524; x++) {
+                    for (int y = 300; y < 364; y++){
+                        for (int x = 440; x < 504; x++) {
                         
-                            pixel->color = MainMenuPtr[y*width+x];
+                            pixel->color = PAUSEPtr[y*width+x];
                             pixel->x = x;
                             pixel->y = y;
                 
@@ -827,11 +829,11 @@ void DrawingPauseScreen(unsigned int *gpioPtr, Pixel *pixel){
                     i = 0;
 
                     // Draw the arrow
-                    for (int y = 520; y < 584; y++){
-                        for (int x = 460; x < 524; x++) {
+                    for (int y = 430; y < 494; y++){
+                        for (int x = 490; x < 554; x++) {
                         
                             if (ArrowPtr[i] == 0x000){
-                                pixel->color = MainMenuPtr[y*width+x];
+                                pixel->color = PAUSEPtr[y*width+x];
                             }else{
                                 pixel->color = ArrowPtr[i];
                             } 
