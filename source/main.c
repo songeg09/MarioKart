@@ -1181,7 +1181,7 @@ void DrawingCoin(unsigned int *gpioPtr, Pixel *pixel){
         lane = 0;
 
         if (p.distance > 0){
-            if (p.distance < 50){
+            if (p.time < 68){
                 srand(time(NULL));
                 lane = rand()%12;
                 lane = lane + 5;
@@ -1976,7 +1976,7 @@ void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel){
         lane = 0;
 
         if (p.distance > 0){
-            if (p.distance <77){
+            if (p.distance <58){
                 srand(time(NULL));
                 lane = rand()%9;
                 lane = lane + 5;
@@ -2061,18 +2061,6 @@ void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel){
                         break;
                     }
                 }else if (p.stage ==2 ){
-                    for(int check = 0; check < 65000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
-                            p.lives = p.lives - 1;
-                            p.distance = p.distance + 2;
-                            break;
-                        }
-                    }
-                    if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
-                        break;
-                    }
-                }else if (p.stage == 3){
                     for(int check = 0; check < 55000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
@@ -2084,8 +2072,20 @@ void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel){
                     if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
                         break;
                     }
+                }else if (p.stage == 3){
+                    for(int check = 0; check < 35000; check ++){
+                        delayMicroseconds(1);
+                        if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
+                            p.lives = p.lives - 1;
+                            p.distance = p.distance + 2;
+                            break;
+                        }
+                    }
+                    if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
+                        break;
+                    }
                 }else{
-                    for(int check = 0; check < 45000; check ++){
+                    for(int check = 0; check < 30000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
                             p.lives = p.lives - 1;
@@ -2157,7 +2157,7 @@ void DrawingSmallHeart(unsigned int *gpioPtr, Pixel *pixel){
         lane = 0;
 
         if (p.distance > 0){
-            if (p.distance < 50){
+            if (p.time < 41){
                 srand(time(NULL));
                 lane = rand()%100;
                 lane = lane + 5;
@@ -2352,7 +2352,7 @@ void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel){
         lane = 0;
 
         if (p.distance > 0){
-            if (p.distance < 77){
+            if (p.distance < 58){
                 srand(time(NULL));
                 lane = rand()%8;
                 lane = lane + 5;
@@ -2428,18 +2428,6 @@ void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel){
                 }
 
                 if (p.stage == 1){
-                    for(int check = 0; check < 75000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == rocket_x*64 && p.current_y == lane*64){
-                            p.lives = p.lives - 1;
-                            p.distance = p.distance + 2;
-                            break;
-                        }
-                    }
-                    if (p.current_x == rocket_x*64 && p.current_y == lane*64){
-                        break;
-                    }
-                }else if (p.stage ==2 ){
                     for(int check = 0; check < 65000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == rocket_x*64 && p.current_y == lane*64){
@@ -2451,8 +2439,20 @@ void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel){
                     if (p.current_x == rocket_x*64 && p.current_y == lane*64){
                         break;
                     }
+                }else if (p.stage ==2 ){
+                    for(int check = 0; check < 45000; check ++){
+                        delayMicroseconds(1);
+                        if (p.current_x == rocket_x*64 && p.current_y == lane*64){
+                            p.lives = p.lives - 1;
+                            p.distance = p.distance + 2;
+                            break;
+                        }
+                    }
+                    if (p.current_x == rocket_x*64 && p.current_y == lane*64){
+                        break;
+                    }
                 }else if (p.stage == 3){
-                    for(int check = 0; check < 55000; check ++){
+                    for(int check = 0; check < 25000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == rocket_x*64 && p.current_y == lane*64){
                             p.lives = p.lives - 1;
@@ -2464,7 +2464,7 @@ void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel){
                         break;
                     }
                 }else{
-                    for(int check = 0; check < 45000; check ++){
+                    for(int check = 0; check < 23000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == rocket_x*64 && p.current_y == lane*64){
                             p.lives = p.lives - 1;
@@ -2534,7 +2534,7 @@ void DrawingClock(unsigned int *gpioPtr, Pixel *pixel){
         lane = 0;
 
         if (p.distance > 0){
-            if (p.distance < 50){
+            if (p.time < 41){
                 srand(time(NULL));
                 lane = rand()/23;
                 lane = lane % 30;
@@ -2613,9 +2613,7 @@ void DrawingClock(unsigned int *gpioPtr, Pixel *pixel){
                     for(int check = 0; check < 170000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == clock_x*64 && p.current_y == lane*64){
-                            if (p.lives < 5){
-                                p.time = p.time + 5;
-                            }
+                            p.time = p.time + 3;
 
                             break;
                         }
@@ -2627,9 +2625,7 @@ void DrawingClock(unsigned int *gpioPtr, Pixel *pixel){
                     for(int check = 0; check < 150000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == clock_x*64 && p.current_y == lane*64){
-                            if (p.lives < 5){
-                                p.time = p.time + 5;
-                            }
+                            p.time = p.time + 3;
 
                             break;
                         }
@@ -2641,10 +2637,7 @@ void DrawingClock(unsigned int *gpioPtr, Pixel *pixel){
                     for(int check = 0; check < 130000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == clock_x*64 && p.current_y == lane*64){
-                            if (p.lives < 5){
-                                p.time = p.time + 5;
-                            }
-
+                            p.time = p.time + 3;
                             break;
                         }
                     }
@@ -2655,10 +2648,7 @@ void DrawingClock(unsigned int *gpioPtr, Pixel *pixel){
                     for(int check = 0; check < 100000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == clock_x*64 && p.current_y == lane*64){
-                            if (p.lives < 5){
-                                p.time = p.time + 5;
-                            }
-
+                            p.time = p.time + 3;
                             break;
                         }
                     }
@@ -2725,9 +2715,9 @@ void init() {
     p.loseflag = 0;
     p.lives = 4;
     p.score = 0;
-    p.time = 100;
+    p.time = 70;
     p.timeleft = 0;
-    p.distance = 80;
+    p.distance = 60;
     p.stage = 1;
     p.game_on = 1;
     p.total_score = 0;
@@ -3132,8 +3122,8 @@ void startGame(){
         p.timeleft = p.timeleft + p.time;
 
         p.stage ++;
-        p.time = 100;
-        p.distance = 80;
+        p.time = 70;
+        p.distance = 60;
         p.game_on = 1;
 
     }
