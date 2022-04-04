@@ -2073,7 +2073,7 @@ void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel){
                         break;
                     }
                 }else if (p.stage == 3){
-                    for(int check = 0; check < 35000; check ++){
+                    for(int check = 0; check < 45000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
                             p.lives = p.lives - 1;
@@ -2085,7 +2085,7 @@ void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel){
                         break;
                     }
                 }else{
-                    for(int check = 0; check < 30000; check ++){
+                    for(int check = 0; check < 35000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
                             p.lives = p.lives - 1;
@@ -2452,7 +2452,7 @@ void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel){
                         break;
                     }
                 }else if (p.stage == 3){
-                    for(int check = 0; check < 25000; check ++){
+                    for(int check = 0; check < 35000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == rocket_x*64 && p.current_y == lane*64){
                             p.lives = p.lives - 1;
@@ -2464,7 +2464,7 @@ void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel){
                         break;
                     }
                 }else{
-                    for(int check = 0; check < 23000; check ++){
+                    for(int check = 0; check < 30000; check ++){
                         delayMicroseconds(1);
                         if (p.current_x == rocket_x*64 && p.current_y == lane*64){
                             p.lives = p.lives - 1;
