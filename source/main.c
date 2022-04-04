@@ -2727,7 +2727,7 @@ void init() {
     p.score = 0;
     p.time = 100;
     p.timeleft = 0;
-    p.distance = 20;
+    p.distance = 80;
     p.stage = 1;
     p.game_on = 1;
     p.total_score = 0;
@@ -3133,7 +3133,7 @@ void startGame(){
 
         p.stage ++;
         p.time = 100;
-        p.distance = 10;
+        p.distance = 80;
         p.game_on = 1;
 
     }
