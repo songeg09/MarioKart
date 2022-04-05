@@ -1101,34 +1101,6 @@ void DrawingMario(unsigned int *gpioPtr, Pixel *pixel){
         delayMicroseconds(120000);
        
     }
-    w = 0;
-    for (int y = p.current_y; y < p.current_y + 64; y++)
-    {
-        for (int x = p.current_x; x < p.current_x + 64; x++) 
-        {
-            if (p.current_x == p.finish_x*64){
-                if (MarioPtr[w] == 0x000){
-                    pixel->color = FinishPtr[w];
-                }else{
-                    pixel->color = MarioPtr[w];
-                } 
-                
-            }else{
-                if (MarioPtr[w] == 0x000){
-                    pixel->color = MapPtr[y*width+x];
-                }else{
-                    pixel->color = MarioPtr[w];
-                } 
-                
-            }
-            pixel->x = x;
-            pixel->y = y;
-    
-            drawPixel(pixel);
-            w++;
-        }
-    
-    }
     
 }
 
