@@ -258,7 +258,7 @@ void opening(unsigned int *gpioPtr, Pixel *pixel){
     short int *OpeningBackgroundPtr=(short int *) OpeningBackgroundImage.pixel_data;    // create array of pixel data for Opening screen
     i = 0;
 
-     for (int y = 0; y < height; y++)                   // draw entire screen, so y = 0 to height-1
+     for (int y = 0; y < height; y++){                   // draw entire screen, so y = 0 to height-1
 		for (int x = 0; x < width; x++)                 // draw entire screeen, x = 0 to width-1
 		{	
 			pixel->color = OpeningBackgroundPtr[i];     // set color for pixel
@@ -272,7 +272,8 @@ void opening(unsigned int *gpioPtr, Pixel *pixel){
 
     do{
         Read_SNES(gpioPtr);                             // cont to read SNES input
-    }while (buttons[3]==1);                             // while start is not pressed yet (wait for START to press)
+    }while (buttons[3] == 1);                             // while start is not pressed yet (wait for START to press)
+
 }
 
 // draw MAIN MENU screen and link to 2 options: play or quit
@@ -1656,7 +1657,7 @@ void DrawingSmallHeart(unsigned int *gpioPtr, Pixel *pixel){
                 }
                 
                 
-                }
+                
 
                 /*  Collision Check */
 
