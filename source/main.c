@@ -1125,7 +1125,288 @@ void *runMario(void *unused){
 
 
 
+// Time
+void DrawingTimeNumbers(unsigned int *gpioPtr, Pixel *pixel, int Number, int digit){
+   
+    short int *NUMBERPtr;
+    short int *TIMEPtr=(short int *) TIMEImage.pixel_data;
+
+    if (Number == 0){
+        NUMBERPtr = (short int *) ZEROImage.pixel_data;
+    }else if (Number == 1){
+        NUMBERPtr = (short int *) ONEImage.pixel_data;
+    }else if (Number == 2){
+        NUMBERPtr = (short int *) TWOImage.pixel_data;
+    }else if (Number == 3){
+        NUMBERPtr = (short int *) THREEImage.pixel_data;
+    }else if (Number == 4){
+        NUMBERPtr = (short int *) FOURImage.pixel_data;
+    }else if (Number == 5){
+        NUMBERPtr = (short int *) FIVEImage.pixel_data;
+    }else if (Number == 6){
+        NUMBERPtr = (short int *) SIXImage.pixel_data;
+    }else if (Number == 7){
+        NUMBERPtr = (short int *) SEVENImage.pixel_data;
+    }else if (Number == 8){
+        NUMBERPtr = (short int *) EIGHTImage.pixel_data;
+    }else if (Number == 9){
+        NUMBERPtr = (short int *) NINEImage.pixel_data;
+
+    }
+
+    int w = 0;
+
+    for (int y = 0; y < 64; y++){
+        for (int x = 0; x < 192; x++){
+            
+            pixel->color = TIMEPtr[w];
+            pixel->x = x+320;
+            pixel->y = y;
+        
+            drawPixel(pixel);
+            w++;
+        }
+    
+    }
+
+    w = 0;
+
+    for (int y = 0; y < 64; y++){
+        for (int x = 0; x < 64; x++){
+            
+            pixel->color = NUMBERPtr[w];
+            if (digit == 1){
+                pixel->x = x+640;
+            }else if (digit == 10){
+                pixel->x = x+576;
+            }else if (digit == 100){
+                pixel->x = x+512;
+            }
+            pixel->y = y;
+        
+            drawPixel(pixel);
+            w++;
+        }
+    
+    }
+}
+
+void DrawingTime(unsigned int *gpioPtr, Pixel *pixel){
+    int one_digit = 0;
+    int ten_digit = 0;
+    int hundred_digit = 0;
+    
+    while (p.game_on == 1){
+
+        while(p.gamepause == 1){
+            if (p.restart == 1){
+                return;
+            }
+        }
+
+        one_digit = p.time % 10;
+        ten_digit = (p.time/10) % 10;
+        hundred_digit = p.time/100;
+        
+        DrawingTimeNumbers(gpioPtr,pixel,one_digit,1);
+        DrawingTimeNumbers(gpioPtr,pixel,ten_digit,10);
+        DrawingTimeNumbers(gpioPtr,pixel,hundred_digit,100);
+    }
+        
+    
+}
+
+void *runTime(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+    
+    DrawingTime(gpioPtr, pixel); 
+    
+    pthread_exit(0);
+}
+
+void *tickTime(void *unused){
+    
+    while((p.time != 0) && p.game_on == 1 && p.distance != 0){
+        while(p.gamepause == 1){
+            if (p.restart == 1){
+                pthread_exit(0);
+            }
+        }
+        sleep(1);
+        p.time = p.time - 1;
+    }
+
+    if (p.time <= 0){
+        p.loseflag = 1;
+    }
+    
+
+    pthread_exit(0);
+}
+
+
+
+// Score
+void DrawingScoreNumbers(unsigned int *gpioPtr, Pixel *pixel, int Number, int digit){
+
+    short int *NUMBERPtr;
+    short int *SCOREPtr = (short int*) SCOREImage.pixel_data;
+
+    if (Number == 0){
+        NUMBERPtr = (short int *) ZEROImage.pixel_data;
+    }else if (Number == 1){
+        NUMBERPtr = (short int *) ONEImage.pixel_data;
+    }else if (Number == 2){
+        NUMBERPtr = (short int *) TWOImage.pixel_data;
+    }else if (Number == 3){
+        NUMBERPtr = (short int *) THREEImage.pixel_data;
+    }else if (Number == 4){
+        NUMBERPtr = (short int *) FOURImage.pixel_data;
+    }else if (Number == 5){
+        NUMBERPtr = (short int *) FIVEImage.pixel_data;
+    }else if (Number == 6){
+        NUMBERPtr = (short int *) SIXImage.pixel_data;
+    }else if (Number == 7){
+        NUMBERPtr = (short int *) SEVENImage.pixel_data;
+    }else if (Number == 8){
+        NUMBERPtr = (short int *) EIGHTImage.pixel_data;
+    }else if (Number == 9){
+        NUMBERPtr = (short int *) NINEImage.pixel_data;
+
+    }
+
+
+    for (int y = 0; y < 64; y++){
+        for (int x = 0; x < 64; x++){
+            
+            pixel->color = 0x000;
+            pixel->x = x+704;
+            pixel->y = y;
+        
+            drawPixel(pixel);
+        }
+    
+    }
+
+    int w = 0;
+
+    for (int y = 0; y < 64; y++){
+        for (int x = 0; x < 256; x++){
+            
+            pixel->color = SCOREPtr[w];
+            pixel->x = x+768;
+            pixel->y = y;
+        
+            drawPixel(pixel);
+            w++;
+        }
+    
+    }
+
+
+    w = 0 ;
+
+    for (int y = 0; y < 64; y++){
+        for (int x = 0; x < 64; x++){
+            
+            pixel->color = NUMBERPtr[w];
+            if (digit == 1){
+                pixel->x = x+1216;
+            }else if (digit == 10){
+                pixel->x = x+1152;
+            }else if (digit == 100){
+                pixel->x = x+1088;
+            }else if (digit == 1000){
+                pixel->x = x+1024;
+            }
+            pixel->y = y;
+        
+            drawPixel(pixel);
+            w++;
+        }
+    
+    }
+}
+
+void DrawingScore(unsigned int *gpioPtr, Pixel *pixel){
+
+    int one_digit = 0;
+    int ten_digit = 0;
+    int hundred_digit = 0;
+    int thousand_digit = 0;
+    
+    while (p.game_on == 1){
+
+        while(p.gamepause == 1){
+            if (p.restart == 1){
+                return;
+            }
+        }
+
+        one_digit = p.score % 10;
+        ten_digit = (p.score/10) % 10;
+        hundred_digit = (p.score/100) % 10;
+        thousand_digit = p.score/1000;
+        
+        DrawingScoreNumbers(gpioPtr,pixel,one_digit,1);
+        DrawingScoreNumbers(gpioPtr,pixel,ten_digit,10);
+        DrawingScoreNumbers(gpioPtr,pixel,hundred_digit,100);
+        DrawingScoreNumbers(gpioPtr,pixel,thousand_digit,1000);
+    }
+        
+        
+    
+
+
+}
+
+void *runScore(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+    
+    DrawingScore(gpioPtr, pixel);    
+    
+    pthread_exit(0);
+}
+
+
 // Coin
+void CheckCoin(int time, int object, int lane){
+    for(int check = 0; check < time; check ++){
+        delayMicroseconds(1);
+        if (p.current_x == object*64 && p.current_y == lane*64){
+            if ((p.score + 10)>9999){
+                p.score = 9999;
+            }else{
+                p.score = p.score + 10;
+            }
+            
+            break;
+        }
+    }
+}
+
 void DrawingCoin(unsigned int *gpioPtr, Pixel *pixel){
 
     short int *MapPtr;
@@ -1225,66 +1506,22 @@ void DrawingCoin(unsigned int *gpioPtr, Pixel *pixel){
                 }
 
                 if (p.stage == 1){
-                    for(int check = 0; check < 170000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == coin_x*64 && p.current_y == lane*64){
-                            if ((p.score + 10)>9999){
-                                p.score = 9999;
-                            }else{
-                                p.score = p.score + 10;
-                            }
-                            
-                            break;
-                        }
-                    }
+                    CheckCoin(170000,coin_x,lane);
                     if (p.current_x == coin_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else if (p.stage ==2 ){
-                    for(int check = 0; check < 150000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == coin_x*64 && p.current_y == lane*64){
-                            if ((p.score + 10)>9999){
-                                p.score = 9999;
-                            }else{
-                                p.score = p.score + 10;
-                            }
-                            
-                            break;
-                        }
-                    }
+                    CheckCoin(150000,coin_x,lane);
                     if (p.current_x == coin_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else if (p.stage == 3){
-                    for(int check = 0; check < 130000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == coin_x*64 && p.current_y == lane*64){
-                            if ((p.score + 10)>9999){
-                                p.score = 9999;
-                            }else{
-                                p.score = p.score + 10;
-                            }
-                            
-                            break;
-                        }
-                    }
+                    CheckCoin(130000,coin_x,lane);
                     if (p.current_x == coin_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else{
-                    for(int check = 0; check < 100000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == coin_x*64 && p.current_y == lane*64){
-                            if ((p.score + 10)>9999){
-                                p.score = 9999;
-                            }else{
-                                p.score = p.score + 10;
-                            }
-                            
-                            break;
-                        }
-                    }
+                    CheckCoin(100000,coin_x,lane);
                     if (p.current_x == coin_x*64 && p.current_y == lane*64){
                         break;
                     }
@@ -1321,788 +1558,20 @@ void *runCoin(void *unused){
 
 
 
-// Time
-void DrawingTimeNumbers(unsigned int *gpioPtr, Pixel *pixel, int Number, int digit){
-    short int *ZEROPtr=(short int *) ZEROImage.pixel_data;
-    short int *ONEPtr=(short int *) ONEImage.pixel_data;
-    short int *TWOPtr=(short int *) TWOImage.pixel_data;
-    short int *THREEPtr=(short int *) THREEImage.pixel_data;
-    short int *FOURPtr=(short int *) FOURImage.pixel_data;
-    short int *FIVEPtr=(short int *) FIVEImage.pixel_data;
-    short int *SIXPtr=(short int *) SIXImage.pixel_data;
-    short int *SEVENPtr=(short int *) SEVENImage.pixel_data;
-    short int *EIGHTPtr=(short int *) EIGHTImage.pixel_data;
-    short int *NINEPtr=(short int *) NINEImage.pixel_data;
-    short int *TIMEPtr=(short int *) TIMEImage.pixel_data;
-
-    int w = 0;
-
-    for (int y = 0; y < 64; y++){
-        for (int x = 0; x < 192; x++){
-            
-            pixel->color = TIMEPtr[w];
-            pixel->x = x+320;
-            pixel->y = y;
-        
-            drawPixel(pixel);
-            w++;
-        }
-    
-    }
-
-    w = 0;
-
-    if (Number == 0){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = ZEROPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if (Number == 1){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = ONEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 2){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = TWOPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if ( Number == 3){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = THREEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-        }
-    }else if (Number == 4){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = FOURPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 5){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = FIVEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 6){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = SIXPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 7){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = SEVENPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 8){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = EIGHTPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 9){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = NINEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+640;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+512;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }
-}
-
-void DrawingTime(unsigned int *gpioPtr, Pixel *pixel){
-    int one_digit = 0;
-    int ten_digit = 0;
-    int hundred_digit = 0;
-    
-    while (p.game_on == 1){
-
-        while(p.gamepause == 1){
-            if (p.restart == 1){
-                return;
-            }
-        }
-
-        one_digit = p.time % 10;
-        ten_digit = (p.time/10) % 10;
-        hundred_digit = p.time/100;
-        
-        DrawingTimeNumbers(gpioPtr,pixel,one_digit,1);
-        DrawingTimeNumbers(gpioPtr,pixel,ten_digit,10);
-        DrawingTimeNumbers(gpioPtr,pixel,hundred_digit,100);
-    }
-        
-    
-}
-
-void *runTime(void *unused){
-    
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
-
-    /* initialize + get FBS */
-    framebufferstruct = initFbInfo();
-    
-    /* initialize a pixel */
-    Pixel *pixel;
-    pixel = malloc(sizeof(Pixel));
-    
-    DrawingTime(gpioPtr, pixel); 
-    
-    pthread_exit(0);
-}
-
-void *tickTime(void *unused){
-    
-    while((p.time != 0) && p.game_on == 1 && p.distance != 0){
-        while(p.gamepause == 1){
-            if (p.restart == 1){
-                pthread_exit(0);
-            }
-        }
-        sleep(1);
-        p.time = p.time - 1;
-    }
-
-    if (p.time <= 0){
-        p.loseflag = 1;
-    }
-    
-
-    pthread_exit(0);
-}
-
-
-
-// Score
-void DrawingScoreNumbers(unsigned int *gpioPtr, Pixel *pixel, int Number, int digit){
-
-    short int *ZEROPtr=(short int *) ZEROImage.pixel_data;
-    short int *ONEPtr=(short int *) ONEImage.pixel_data;
-    short int *TWOPtr=(short int *) TWOImage.pixel_data;
-    short int *THREEPtr=(short int *) THREEImage.pixel_data;
-    short int *FOURPtr=(short int *) FOURImage.pixel_data;
-    short int *FIVEPtr=(short int *) FIVEImage.pixel_data;
-    short int *SIXPtr=(short int *) SIXImage.pixel_data;
-    short int *SEVENPtr=(short int *) SEVENImage.pixel_data;
-    short int *EIGHTPtr=(short int *) EIGHTImage.pixel_data;
-    short int *NINEPtr=(short int *) NINEImage.pixel_data;
-
-    short int *SCOREPtr=(short int *) SCOREImage.pixel_data;
-
-
-    for (int y = 0; y < 64; y++){
-        for (int x = 0; x < 64; x++){
-            
-            pixel->color = 0x000;
-            pixel->x = x+704;
-            pixel->y = y;
-        
-            drawPixel(pixel);
-        }
-    
-    }
-
-    int w = 0;
-
-    for (int y = 0; y < 64; y++){
-        for (int x = 0; x < 256; x++){
-            
-            pixel->color = SCOREPtr[w];
-            pixel->x = x+768;
-            pixel->y = y;
-        
-            drawPixel(pixel);
-            w++;
-        }
-    
-    }
-
-    w = 0 ;
-
-    if (Number == 0){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = ZEROPtr[w];
-                if (digit == 1){
-                    pixel->x = x+1216;
-                }else if (digit == 10){
-                    pixel->x = x+1152;
-                }else if (digit == 100){
-                    pixel->x = x+1088;
-                }else if (digit == 1000){
-                    pixel->x = x+1024;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if (Number == 1){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = ONEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+1216;
-                }else if (digit == 10){
-                    pixel->x = x+1152;
-                }else if (digit == 100){
-                    pixel->x = x+1088;
-                }else if (digit == 1000){
-                    pixel->x = x+1024;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 2){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = TWOPtr[w];
-                if (digit == 1){
-                    pixel->x = x+1216;
-                }else if (digit == 10){
-                    pixel->x = x+1152;
-                }else if (digit == 100){
-                    pixel->x = x+1088;
-                }else if (digit == 1000){
-                    pixel->x = x+1024;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if ( Number == 3){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = THREEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+1216;
-                }else if (digit == 10){
-                    pixel->x = x+1152;
-                }else if (digit == 100){
-                    pixel->x = x+1088;
-                }else if (digit == 1000){
-                    pixel->x = x+1024;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-        }
-    }else if (Number == 4){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = FOURPtr[w];
-                if (digit == 1){
-                    pixel->x = x+1216;
-                }else if (digit == 10){
-                    pixel->x = x+1152;
-                }else if (digit == 100){
-                    pixel->x = x+1088;
-                }else if (digit == 1000){
-                    pixel->x = x+1024;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 5){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = FIVEPtr[w];
-               if (digit == 1){
-                    pixel->x = x+1216;
-                }else if (digit == 10){
-                    pixel->x = x+1152;
-                }else if (digit == 100){
-                    pixel->x = x+1088;
-                }else if (digit == 1000){
-                    pixel->x = x+1024;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 6){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = SIXPtr[w];
-                if (digit == 1){
-                    pixel->x = x+1216;
-                }else if (digit == 10){
-                    pixel->x = x+1152;
-                }else if (digit == 100){
-                    pixel->x = x+1088;
-                }else if (digit == 1000){
-                    pixel->x = x+1024;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 7){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = SEVENPtr[w];
-                if (digit == 1){
-                    pixel->x = x+1216;
-                }else if (digit == 10){
-                    pixel->x = x+1152;
-                }else if (digit == 100){
-                    pixel->x = x+1088;
-                }else if (digit == 1000){
-                    pixel->x = x+1024;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 8){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = EIGHTPtr[w];
-                if (digit == 1){
-                    pixel->x = x+1216;
-                }else if (digit == 10){
-                    pixel->x = x+1152;
-                }else if (digit == 100){
-                    pixel->x = x+1088;
-                }else if (digit == 1000){
-                    pixel->x = x+1024;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }else if (Number == 9){
-        for (int y = 0; y < 64; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = NINEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+1216;
-                }else if (digit == 10){
-                    pixel->x = x+1152;
-                }else if (digit == 100){
-                    pixel->x = x+1088;
-                }else if (digit == 1000){
-                    pixel->x = x+1024;
-                }
-                pixel->y = y;
-        
-                drawPixel(pixel);
-                w++;
-            }
-    
-        }
-    }
-}
-
-void DrawingScore(unsigned int *gpioPtr, Pixel *pixel){
-
-    int one_digit = 0;
-    int ten_digit = 0;
-    int hundred_digit = 0;
-    int thousand_digit = 0;
-    
-    while (p.game_on == 1){
-
-        while(p.gamepause == 1){
-            if (p.restart == 1){
-                return;
-            }
-        }
-
-        one_digit = p.score % 10;
-        ten_digit = (p.score/10) % 10;
-        hundred_digit = (p.score/100) % 10;
-        thousand_digit = p.score/1000;
-        
-        DrawingScoreNumbers(gpioPtr,pixel,one_digit,1);
-        DrawingScoreNumbers(gpioPtr,pixel,ten_digit,10);
-        DrawingScoreNumbers(gpioPtr,pixel,hundred_digit,100);
-        DrawingScoreNumbers(gpioPtr,pixel,thousand_digit,1000);
-    }
-        
-        
-    
-
-
-}
-
-void *runScore(void *unused){
-    
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
-
-    /* initialize + get FBS */
-    framebufferstruct = initFbInfo();
-    
-    /* initialize a pixel */
-    Pixel *pixel;
-    pixel = malloc(sizeof(Pixel));
-    
-    DrawingScore(gpioPtr, pixel);    
-    
-    pthread_exit(0);
-}
-
-
-
-// Green Shell
-void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel){
-    short int *MapPtr;
-    if (p.stage == 1){
-        MapPtr=(short int *) Map1Image.pixel_data;
-    }else if(p.stage == 2){
-        MapPtr=(short int *) Map2Image.pixel_data;
-    }else if(p.stage ==3){
-        MapPtr=(short int *) Map3Image.pixel_data;
-    }else{
-        MapPtr=(short int *) Map4Image.pixel_data;
-    }
-
-    short int *FinishPtr=(short int *) FinishImage.pixel_data;
-    short int *GreenShellPtr=(short int *) GreenShellImage.pixel_data;
-    int w;
-    int lane;
-    
-    while(p.game_on == 1){
-        
-        
-        
-        int greenShell_x = 0;
-
-        lane = 0;
-
-        if (p.distance > 0){
-            if (p.distance <58){
-                srand(time(NULL));
-                lane = rand()%9;
-                lane = lane + 5;
-            }
-        }
-
-        while(p.game_on == 1){
-            while(p.gamepause == 1){
-                if (p.restart == 1){
-                    return;
-                }
-            }
-            if (lane == 5 || lane == 6 || lane == 7 || lane == 8 || lane == 9 || lane == 10){
-
-                w = 0;
-
-                /*  Fixing Background   */
-                for (int y = lane*64; y < lane*64 + 64; y++)
-                {
-                    for (int x = (greenShell_x-1)*64 ; x < (greenShell_x-1)*64 + 64; x++) 
-                    {
-                        if ((greenShell_x-1)*64 == p.finish_x*64){
-                            pixel->color = FinishPtr[w]; 
-                        }else{
-                            pixel->color = MapPtr[y*width+x];
-                        }
-                        pixel->x = x;
-                        pixel->y = y;
-                
-                        drawPixel(pixel);
-                        w++;
-                
-                    }
-                }
-
-                if (greenShell_x == 20){
-                    break;
-                }
-                if(p.gamepause == 1) {
-                    return;
-                }
-
-                w = 0;
-                
-                /* Shell Location */
-                for (int y = lane*64; y < lane*64 + 64; y++)
-                {
-                    for (int x = greenShell_x*64; x < greenShell_x*64 + 64; x++) 
-                    {
-                        if(greenShell_x*64 == p.finish_x*64){
-                            if (GreenShellPtr[w] == 0x000){
-                                pixel->color = FinishPtr[w];
-                            }else{
-                                pixel->color = GreenShellPtr[w];
-                            }
-                        }else{
-                            if (GreenShellPtr[w] == 0x000){
-                                pixel->color = MapPtr[y*width+x];
-                            }else{
-                                pixel->color = GreenShellPtr[w];
-                            }
-                        }
-                        pixel->x = x;
-                        pixel->y = y;
-                        
-                        drawPixel(pixel);
-                        w++;
-                    }
-                
-                }
-
-                if (p.stage == 1){
-                    for(int check = 0; check < 75000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
-                            p.lives = p.lives - 1;
-                            p.distance = p.distance + 2;
-                            break;
-                        }
-                    }
-                    if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
-                        break;
-                    }
-                }else if (p.stage ==2 ){
-                    for(int check = 0; check < 55000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
-                            p.lives = p.lives - 1;
-                            p.distance = p.distance + 2;
-                            break;
-                        }
-                    }
-                    if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
-                        break;
-                    }
-                }else if (p.stage == 3){
-                    for(int check = 0; check < 45000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
-                            p.lives = p.lives - 1;
-                            p.distance = p.distance + 2;
-                            break;
-                        }
-                    }
-                    if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
-                        break;
-                    }
-                }else{
-                    for(int check = 0; check < 35000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
-                            p.lives = p.lives - 1;
-                            p.distance = p.distance + 2;
-                            break;
-                        }
-                    }
-                    if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
-                        break;
-                    }
-                }
-
-                greenShell_x = greenShell_x + 1;
-
-            }else{
-                break;
-            }
-        }
-
-        sleep(1); 
-    }
-}
-
-void *runGreenShell(void *unused){
-    
-    unsigned int *gpioPtr = getGPIOPtr();
-    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
-    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
-    Init_GPIO(DAT, 0, gpioPtr);
-
-    /* initialize + get FBS */
-    framebufferstruct = initFbInfo();
-    
-    /* initialize a pixel */
-    Pixel *pixel;
-    pixel = malloc(sizeof(Pixel));
-
-    DrawingGreenShell(gpioPtr, pixel); 
-
-    pthread_exit(0);
-}
-
-
-
 // Small Heart
+void CheckHeart(int time, int object, int lane){
+   for(int check = 0; check < time; check ++){
+        delayMicroseconds(1);
+        if (p.current_x == object*64 && p.current_y == lane*64){
+            if (p.lives < 5){
+                p.lives = p.lives + 1;
+            }
+
+            break;
+        } 
+    } 
+}
+
 void DrawingSmallHeart(unsigned int *gpioPtr, Pixel *pixel){
 
     short int *MapPtr;
@@ -2210,58 +1679,22 @@ void DrawingSmallHeart(unsigned int *gpioPtr, Pixel *pixel){
                 /*  Collision Check */
 
                 if (p.stage == 1){
-                    for(int check = 0; check < 170000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == heart_x*64 && p.current_y == lane*64){
-                            if (p.lives < 5){
-                                p.lives = p.lives + 1;
-                            }
-
-                            break;
-                        } 
-                    }
+                    CheckHeart(170000, heart_x, lane);
                     if (p.current_x == heart_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else if (p.stage ==2 ){
-                    for(int check = 0; check < 150000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == heart_x*64 && p.current_y == lane*64){
-                            if (p.lives < 5){
-                                p.lives = p.lives + 1;
-                            }
-
-                            break;
-                        } 
-                    }
+                    CheckHeart(150000, heart_x, lane);
                     if (p.current_x == heart_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else if (p.stage == 3){
-                    for(int check = 0; check < 130000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == heart_x*64 && p.current_y == lane*64){
-                            if (p.lives < 5){
-                                p.lives = p.lives + 1;
-                            }
-
-                            break;
-                        } 
-                    }
+                    CheckHeart(130000, heart_x, lane);
                     if (p.current_x == heart_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else{
-                    for(int check = 0; check < 100000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == heart_x*64 && p.current_y == lane*64){
-                            if (p.lives < 5){
-                                p.lives = p.lives + 1;
-                            }
-
-                            break;
-                        } 
-                    }
+                    CheckHeart(100000, heart_x, lane);
                     if (p.current_x == heart_x*64 && p.current_y == lane*64){
                         break;
                     }
@@ -2298,6 +1731,17 @@ void *runSmallHeart(void *unused){
 
 
 // Rocket
+void CheckHIT(int time, int object, int lane){
+    for(int check = 0; check < time; check ++){
+        delayMicroseconds(1);
+        if (p.current_x == object*64 && p.current_y == lane*64){
+            p.lives = p.lives - 1;
+            p.distance = p.distance + 2;
+            break;
+        }
+    }
+}
+
 void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel){
     short int *MapPtr;
     if (p.stage == 1){
@@ -2400,50 +1844,22 @@ void DrawingRocket(unsigned int *gpioPtr, Pixel *pixel){
                 }
 
                 if (p.stage == 1){
-                    for(int check = 0; check < 65000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == rocket_x*64 && p.current_y == lane*64){
-                            p.lives = p.lives - 1;
-                            p.distance = p.distance + 2;
-                            break;
-                        }
-                    }
+                    CheckHIT(65000,rocket_x,lane);
                     if (p.current_x == rocket_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else if (p.stage ==2 ){
-                    for(int check = 0; check < 45000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == rocket_x*64 && p.current_y == lane*64){
-                            p.lives = p.lives - 1;
-                            p.distance = p.distance + 2;
-                            break;
-                        }
-                    }
+                    CheckHIT(45000,rocket_x,lane);
                     if (p.current_x == rocket_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else if (p.stage == 3){
-                    for(int check = 0; check < 35000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == rocket_x*64 && p.current_y == lane*64){
-                            p.lives = p.lives - 1;
-                            p.distance = p.distance + 2;
-                            break;
-                        }
-                    }
+                    CheckHIT(35000,rocket_x,lane);
                     if (p.current_x == rocket_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else{
-                    for(int check = 0; check < 30000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == rocket_x*64 && p.current_y == lane*64){
-                            p.lives = p.lives - 1;
-                            p.distance = p.distance + 2;
-                            break;
-                        }
-                    }
+                    CheckHIT(30000,rocket_x,lane);
                     if (p.current_x == rocket_x*64 && p.current_y == lane*64){
                         break;
                     }
@@ -2477,9 +1893,172 @@ void *runRocket(void *unused){
     pthread_exit(0);
 }
 
+// Green Shell
+void DrawingGreenShell(unsigned int *gpioPtr, Pixel *pixel){
+    short int *MapPtr;
+    if (p.stage == 1){
+        MapPtr=(short int *) Map1Image.pixel_data;
+    }else if(p.stage == 2){
+        MapPtr=(short int *) Map2Image.pixel_data;
+    }else if(p.stage ==3){
+        MapPtr=(short int *) Map3Image.pixel_data;
+    }else{
+        MapPtr=(short int *) Map4Image.pixel_data;
+    }
+
+    short int *FinishPtr=(short int *) FinishImage.pixel_data;
+    short int *GreenShellPtr=(short int *) GreenShellImage.pixel_data;
+    int w;
+    int lane;
+    
+    while(p.game_on == 1){
+        
+        
+        
+        int greenShell_x = 0;
+
+        lane = 0;
+
+        if (p.distance > 0){
+            if (p.distance <58){
+                srand(time(NULL));
+                lane = rand()%9;
+                lane = lane + 5;
+            }
+        }
+
+        while(p.game_on == 1){
+            while(p.gamepause == 1){
+                if (p.restart == 1){
+                    return;
+                }
+            }
+            if (lane == 5 || lane == 6 || lane == 7 || lane == 8 || lane == 9 || lane == 10){
+
+                w = 0;
+
+                /*  Fixing Background   */
+                for (int y = lane*64; y < lane*64 + 64; y++)
+                {
+                    for (int x = (greenShell_x-1)*64 ; x < (greenShell_x-1)*64 + 64; x++) 
+                    {
+                        if ((greenShell_x-1)*64 == p.finish_x*64){
+                            pixel->color = FinishPtr[w]; 
+                        }else{
+                            pixel->color = MapPtr[y*width+x];
+                        }
+                        pixel->x = x;
+                        pixel->y = y;
+                
+                        drawPixel(pixel);
+                        w++;
+                
+                    }
+                }
+
+                if (greenShell_x == 20){
+                    break;
+                }
+                if(p.gamepause == 1) {
+                    return;
+                }
+
+                w = 0;
+                
+                /* Shell Location */
+                for (int y = lane*64; y < lane*64 + 64; y++)
+                {
+                    for (int x = greenShell_x*64; x < greenShell_x*64 + 64; x++) 
+                    {
+                        if(greenShell_x*64 == p.finish_x*64){
+                            if (GreenShellPtr[w] == 0x000){
+                                pixel->color = FinishPtr[w];
+                            }else{
+                                pixel->color = GreenShellPtr[w];
+                            }
+                        }else{
+                            if (GreenShellPtr[w] == 0x000){
+                                pixel->color = MapPtr[y*width+x];
+                            }else{
+                                pixel->color = GreenShellPtr[w];
+                            }
+                        }
+                        pixel->x = x;
+                        pixel->y = y;
+                        
+                        drawPixel(pixel);
+                        w++;
+                    }
+                
+                }
+
+                if (p.stage == 1){
+                    CheckHIT(75000,greenShell_x,lane);
+                    if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
+                        break;
+                    }
+                }else if (p.stage ==2 ){
+                    CheckHIT(55000,greenShell_x,lane);
+                    if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
+                        break;
+                    }
+                }else if (p.stage == 3){
+                    CheckHIT(45000,greenShell_x,lane);
+                    if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
+                        break;
+                    }
+                }else{
+                    CheckHIT(35000,greenShell_x,lane);
+                    if (p.current_x == greenShell_x*64 && p.current_y == lane*64){
+                        break;
+                    }
+                }
+
+                greenShell_x = greenShell_x + 1;
+
+            }else{
+                break;
+            }
+        }
+
+        sleep(1); 
+    }
+}
+
+void *runGreenShell(void *unused){
+    
+    unsigned int *gpioPtr = getGPIOPtr();
+    Init_GPIO(CLK, 1, gpioPtr);         // init pin 11 to output
+    Init_GPIO(LAT, 1, gpioPtr);         // init pin 9 to output
+    Init_GPIO(DAT, 0, gpioPtr);
+
+    /* initialize + get FBS */
+    framebufferstruct = initFbInfo();
+    
+    /* initialize a pixel */
+    Pixel *pixel;
+    pixel = malloc(sizeof(Pixel));
+
+    DrawingGreenShell(gpioPtr, pixel); 
+
+    pthread_exit(0);
+}
+
+
 
 
 // Clock
+void CheckClock(int time, int object, int lane){
+    for(int check = 0; check < time; check ++){
+        delayMicroseconds(1);
+        if (p.current_x == object*64 && p.current_y == lane*64){
+            p.time = p.time + 3;
+
+            break;
+        }
+    }
+}
+
 void DrawingClock(unsigned int *gpioPtr, Pixel *pixel){
 
     short int *MapPtr;
@@ -2582,48 +2161,27 @@ void DrawingClock(unsigned int *gpioPtr, Pixel *pixel){
                 /*  Collision Check */
 
                 if (p.stage == 1){
-                    for(int check = 0; check < 170000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == clock_x*64 && p.current_y == lane*64){
-                            p.time = p.time + 3;
 
-                            break;
-                        }
-                    }
+                    CheckClock(170000, clock_x, lane);
+                    
                     if (p.current_x == clock_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else if (p.stage ==2 ){
-                    for(int check = 0; check < 150000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == clock_x*64 && p.current_y == lane*64){
-                            p.time = p.time + 3;
-
-                            break;
-                        }
-                    }
+                    CheckClock(150000, clock_x, lane);
+                    
                     if (p.current_x == clock_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else if (p.stage == 3){
-                    for(int check = 0; check < 130000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == clock_x*64 && p.current_y == lane*64){
-                            p.time = p.time + 3;
-                            break;
-                        }
-                    }
+                    CheckClock(130000, clock_x, lane);
+                    
                     if (p.current_x == clock_x*64 && p.current_y == lane*64){
                         break;
                     }
                 }else{
-                    for(int check = 0; check < 100000; check ++){
-                        delayMicroseconds(1);
-                        if (p.current_x == clock_x*64 && p.current_y == lane*64){
-                            p.time = p.time + 3;
-                            break;
-                        }
-                    }
+                    CheckClock(100000, clock_x, lane);
+                    
                     if (p.current_x == clock_x*64 && p.current_y == lane*64){
                         break;
                     }
@@ -2749,232 +2307,55 @@ void DrawWIN(unsigned int *gpioPtr, Pixel *pixel){
 }
 
 void DrawFinalNumbers(unsigned int *gpioPtr, Pixel *pixel,int Number, int digit){
-    short int *ZEROPtr=(short int *) ZEROImage.pixel_data;
-    short int *ONEPtr=(short int *) ONEImage.pixel_data;
-    short int *TWOPtr=(short int *) TWOImage.pixel_data;
-    short int *THREEPtr=(short int *) THREEImage.pixel_data;
-    short int *FOURPtr=(short int *) FOURImage.pixel_data;
-    short int *FIVEPtr=(short int *) FIVEImage.pixel_data;
-    short int *SIXPtr=(short int *) SIXImage.pixel_data;
-    short int *SEVENPtr=(short int *) SEVENImage.pixel_data;
-    short int *EIGHTPtr=(short int *) EIGHTImage.pixel_data;
-    short int *NINEPtr=(short int *) NINEImage.pixel_data;
 
+    short int *NUMBERPtr;
+
+    if (Number == 0){
+        NUMBERPtr = (short int *) ZEROImage.pixel_data;
+    }else if (Number == 1){
+        NUMBERPtr = (short int *) ONEImage.pixel_data;
+    }else if (Number == 2){
+        NUMBERPtr = (short int *) TWOImage.pixel_data;
+    }else if (Number == 3){
+        NUMBERPtr = (short int *) THREEImage.pixel_data;
+    }else if (Number == 4){
+        NUMBERPtr = (short int *) FOURImage.pixel_data;
+    }else if (Number == 5){
+        NUMBERPtr = (short int *) FIVEImage.pixel_data;
+    }else if (Number == 6){
+        NUMBERPtr = (short int *) SIXImage.pixel_data;
+    }else if (Number == 7){
+        NUMBERPtr = (short int *) SEVENImage.pixel_data;
+    }else if (Number == 8){
+        NUMBERPtr = (short int *) EIGHTImage.pixel_data;
+    }else if (Number == 9){
+        NUMBERPtr = (short int *) NINEImage.pixel_data;
+
+    }
     
 
     int w = 0 ;
-
-    if (Number == 0){
-        for (int y = 360; y < 424; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = ZEROPtr[w];
-                if (digit == 1){
-                    pixel->x = x+512;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+640;
-                }else if (digit == 1000){
-                    pixel->x = x+704;
-                }
-                pixel->y = y;
+    for (int y = 360; y < 424; y++){
+        for (int x = 0; x < 64; x++){
             
-                drawPixel(pixel);
-                w++;
+            pixel->color = NUMBERPtr[w];
+            if (digit == 1){
+                pixel->x = x+512;
+            }else if (digit == 10){
+                pixel->x = x+576;
+            }else if (digit == 100){
+                pixel->x = x+640;
+            }else if (digit == 1000){
+                pixel->x = x+704;
             }
-		
-	    }
-    }else if (Number == 1){
-        for (int y = 360; y < 424; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = ONEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+512;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+640;
-                }else if (digit == 1000){
-                    pixel->x = x+704;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if (Number == 2){
-        for (int y = 360; y < 424; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = TWOPtr[w];
-                if (digit == 1){
-                    pixel->x = x+512;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+640;
-                }else if (digit == 1000){
-                    pixel->x = x+704;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if ( Number == 3){
-        for (int y = 360; y < 424; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = THREEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+512;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+640;
-                }else if (digit == 1000){
-                    pixel->x = x+704;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if (Number == 4){
-        for (int y = 360; y < 424; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = FOURPtr[w];
-                if (digit == 1){
-                    pixel->x = x+512;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+640;
-                }else if (digit == 1000){
-                    pixel->x = x+704;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if (Number == 5){
-        for (int y = 360; y < 424; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = FIVEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+512;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+640;
-                }else if (digit == 1000){
-                    pixel->x = x+704;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if (Number == 6){
-        for (int y = 360; y < 424; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = SIXPtr[w];
-                if (digit == 1){
-                    pixel->x = x+512;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+640;
-                }else if (digit == 1000){
-                    pixel->x = x+704;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if (Number == 7){
-        for (int y = 360; y < 424; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = SEVENPtr[w];
-                if (digit == 1){
-                    pixel->x = x+512;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+640;
-                }else if (digit == 1000){
-                    pixel->x = x+704;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if (Number == 8){
-        for (int y = 360; y < 424; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = EIGHTPtr[w];
-                if (digit == 1){
-                    pixel->x = x+512;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+640;
-                }else if (digit == 1000){
-                    pixel->x = x+704;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
-    }else if (Number == 9){
-        for (int y = 360; y < 424; y++){
-            for (int x = 0; x < 64; x++){
-                
-                pixel->color = NINEPtr[w];
-                if (digit == 1){
-                    pixel->x = x+512;
-                }else if (digit == 10){
-                    pixel->x = x+576;
-                }else if (digit == 100){
-                    pixel->x = x+640;
-                }else if (digit == 1000){
-                    pixel->x = x+704;
-                }
-                pixel->y = y;
-            
-                drawPixel(pixel);
-                w++;
-            }
-		
-	    }
+            pixel->y = y;
+        
+            drawPixel(pixel);
+            w++;
+        }
+    
     }
+    
 }
 
 void DrawFINALSCORE(unsigned int *gpioPtr, Pixel *pixel){
